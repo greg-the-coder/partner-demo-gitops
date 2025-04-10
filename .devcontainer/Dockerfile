@@ -7,8 +7,8 @@ RUN sudo apt-get update && sudo apt-get install -y \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # Download and install Terraform
-RUN wget --quiet https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip \
-    && unzip terraform_1.6.6_linux_amd64.zip \
+RUN sudo wget --quiet https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip \
+    && sudo unzip terraform_1.6.6_linux_amd64.zip \
     && sudo mv terraform /usr/bin \
     && sudo rm terraform_1.6.6_linux_amd64.zip
 
