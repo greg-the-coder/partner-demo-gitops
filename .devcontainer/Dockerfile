@@ -4,8 +4,7 @@ FROM codercom/enterprise-base:ubuntu
 # Packages to download and unzip Terraform
 RUN apt-get update && apt-get install -y \
     wget \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
+    unzip 
 
 # Download and install Terraform
 RUN wget --quiet https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip \
