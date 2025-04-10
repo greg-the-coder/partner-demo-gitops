@@ -5,7 +5,7 @@
 	},
 	"remoteEnv": {
         	"CODER": "devcontainer"
-        },
+        }
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "curl -L https://coder.com/install.sh | sh"
+	//"postCreateCommand": "curl -L https://coder.com/install.sh | sh"
 }
