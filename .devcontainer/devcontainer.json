@@ -1,0 +1,9 @@
+{
+	"name": "CoderGitOpsAdmin",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"remoteEnv": {
+        	"CODER": "devcontainer"
+        }
+}
