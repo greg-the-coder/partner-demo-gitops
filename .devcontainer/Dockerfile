@@ -13,6 +13,6 @@ RUN wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /us
 && sudo apt update && sudo apt install terraform
 
 # Install AWS CLI
-RUN sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-amd64.zip" -o "awscliv2.zip" \
+RUN sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
 && sudo unzip awscliv2.zip \
 && sudo ./aws/install && sudo rm awscliv2.zip
