@@ -24,20 +24,24 @@ provider "coderd" {
 }
 resource "coderd_user" "coderGitOps" {
   username = "coderGitOps"
-  name     = "Coder GitOps Admin"
-  email    = "coderGitOps@coder.com"
+  name     = "Coder GitOps"
+  email    = "GitOps@coder.com"
 }
 
 resource "coderd_template" "kubernetes-base" {
-  name        = "Kubernetes (Deployment)-GitOps"
+  name        = "kubernetes-base"
   description = "Provision Kubernetes Deployments as Coder workspaces."
-  versions = [
-    {
-      name        = "stable-test1"
-      description = "The stable version of the template."
-      directory   = "./kubernetes-base"
-    }
-  ]
+  display_name = "Kubernetes (Deployment) GitOps"
+  versions = [{
+    directory = "./kubernetes-base"
+    active    = true
+    # Version name is optional
+    name = "GitOps-Deployment"
+    tf_vars = [{
+      name  = "namespace"
+      value = "default4"
+    }]
+  }]
   acl = {
     users = [{
       id   = coderd_user.coderGitOps.id
