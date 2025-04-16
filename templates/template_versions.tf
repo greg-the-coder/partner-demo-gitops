@@ -5,10 +5,27 @@ terraform {
     }
   }
 }
+// Variables sourced from TF_VAR_<environment variables>
+variable "coder_url" {
+  type        = string
+  description = "Coder deployment login url"
+  default     = ""
+}
+variable "coder_token" {
+  type        = string
+  description = "Coder session token used to authenticate to deployment"
+  default     = ""
+}
+
 // Provider populated from environment variables
 provider "coderd" {
-    url   = env("CODER_AGENT_URL")
-    token = env("CODER_AGENT_TOKEN")
+    url   = "${var.coder_url}"
+    token = "${var.coder_token}"
+}
+resource "coderd_user" "coderGitOps" {
+  username = "coderGitOps"
+  name     = "Coder GitOps Admin"
+  email    = "coderGitOps@coder.com"
 }
 
 resource "coderd_template" "kubernetes-base" {
@@ -22,6 +39,10 @@ resource "coderd_template" "kubernetes-base" {
     }
   ]
   acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
     groups = []
   }
 }
