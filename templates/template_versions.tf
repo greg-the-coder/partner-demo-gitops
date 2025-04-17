@@ -41,7 +41,7 @@ resource "coderd_template" "kubernetes-base" {
     directory = "./kubernetes-base"
     active    = true
     # Version name is optional
-    name = "GitOps-${var.coder_gitsha}"
+    name = var.coder_gitsha
     tf_vars = [{
       name  = "namespace"
       value = "coder"
