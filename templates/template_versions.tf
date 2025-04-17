@@ -16,6 +16,11 @@ variable "coder_token" {
   description = "Coder session token used to authenticate to deployment"
   default     = ""
 }
+variable "coder_gitsha" {
+  type        = string
+  description = "Git SHA to use in version name"
+  default = ""  
+}
 
 // Provider populated from environment variables
 provider "coderd" {
@@ -36,10 +41,10 @@ resource "coderd_template" "kubernetes-base" {
     directory = "./kubernetes-base"
     active    = true
     # Version name is optional
-    name = "GitOps-Deployment"
+    name = "GitOps-${var.coder_gitsha}"
     tf_vars = [{
       name  = "namespace"
-      value = "default4"
+      value = "coder"
     }]
   }]
   acl = {
