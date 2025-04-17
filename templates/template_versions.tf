@@ -37,6 +37,7 @@ resource "coderd_template" "kubernetes-base" {
   name        = "kubernetes-base"
   description = "Provision Kubernetes Deployments as Coder workspaces."
   display_name = "Kubernetes (Deployment) GitOps"
+  icon = "/icon/aws.svg"
   versions = [{
     directory = "./kubernetes-base"
     active    = true
