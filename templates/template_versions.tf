@@ -34,7 +34,7 @@ resource "coderd_user" "coderGitOps" {
 }
 
 resource "coderd_template" "kubernetes-base" {
-  name        = "kubernetes-base"
+  name        = "kubernetes-base-gitops"
   display_name = "Kubernetes (Deployment) GitOps"
   description = "Provision Kubernetes Deployments as Coder workspaces."
   icon = "/icon/aws.svg"
@@ -58,7 +58,7 @@ resource "coderd_template" "kubernetes-base" {
 }
 
 resource "coderd_template" "kubernetes-devcontainer" {
-  name        = "kubernetes-devcontainer"
+  name        = "kubernetes-devcontainer-gitops"
   display_name = "Devcontainers (Kubernetes) GitOps"
   description = "Provision envbuilder pods as Coder workspaces"
   icon = "/icon/aws.svg"
