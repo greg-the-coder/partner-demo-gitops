@@ -35,11 +35,35 @@ resource "coderd_user" "coderGitOps" {
 
 resource "coderd_template" "kubernetes-base" {
   name        = "kubernetes-base"
-  description = "Provision Kubernetes Deployments as Coder workspaces."
   display_name = "Kubernetes (Deployment) GitOps"
+  description = "Provision Kubernetes Deployments as Coder workspaces."
   icon = "/icon/aws.svg"
   versions = [{
     directory = "./kubernetes-base"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+    tf_vars = [{
+      name  = "namespace"
+      value = "coder"
+    }]
+  }]
+  acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
+    groups = []
+  }
+}
+
+resource "coderd_template" "kubernetes-devcontainer" {
+  name        = "kubernetes-devcontainer"
+  display_name = "Devcontainers (Kubernetes) GitOps"
+  description = "Provision envbuilder pods as Coder workspaces"
+  icon = "/icon/aws.svg"
+  versions = [{
+    directory = "./kubernetes-devcontainer"
     active    = true
     # Version name is optional
     name = var.coder_gitsha
