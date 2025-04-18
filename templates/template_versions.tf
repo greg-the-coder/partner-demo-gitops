@@ -81,6 +81,26 @@ resource "coderd_template" "kubernetes-devcontainer" {
   }
 }
 
+resource "coderd_template" "aws-devcontainer" {
+  name        = "aws-devcontainer"
+  display_name = "Devcontainers (AWS EC2 Linux)"
+  description = "Provision envbuilder containers on AWS EC2 VMs as Coder workspaces"
+  icon = "/icon/aws.png"
+  versions = [{
+    directory = "./aws-devcontainer"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+  }]
+  acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
+    groups = []
+  }
+}
+
 resource "coderd_template" "aws-linux-agentic-sam" {
   name        = "aws-linux-agentic-sam-gitops"
   display_name = "AWS EC2 (Linux) Agentic SAM"
