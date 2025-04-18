@@ -1,3 +1,7 @@
+###########################################################
+# Core Coder GitOps Provider, Resource & Variable definitions
+###########################################################
+
 terraform {
   required_providers {
     coderd = {
@@ -5,6 +9,7 @@ terraform {
     }
   }
 }
+
 // Variables sourced from TF_VAR_<environment variables>
 variable "coder_url" {
   type        = string
@@ -22,16 +27,20 @@ variable "coder_gitsha" {
   default = ""  
 }
 
-// Provider populated from environment variables
 provider "coderd" {
     url   = "${var.coder_url}"
     token = "${var.coder_token}"
 }
+
 resource "coderd_user" "coderGitOps" {
   username = "coderGitOps"
   name     = "Coder GitOps"
   email    = "GitOps@coder.com"
 }
+
+###########################################################
+# Maintain Coder Template Resources in this Section
+###########################################################
 
 resource "coderd_template" "kubernetes-base" {
   name        = "kubernetes-base-gitops"
