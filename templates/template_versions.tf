@@ -107,11 +107,31 @@ resource "coderd_template" "aws-linux-agentic-sam" {
 
 resource "coderd_template" "aws-linux-base" {
   name        = "aws-linux-base"
-  display_name = "AWS EC2 (Linux)M"
+  display_name = "AWS EC2 (Linux)"
   description = "Provision AWS EC2 VMs as Coder workspaces"
   icon = "/icon/aws.png"
   versions = [{
     directory = "./aws-linux-base"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+  }]
+  acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
+    groups = []
+  }
+}
+
+resource "coderd_template" "aws-linux-sam" {
+  name        = "aws-linux-sam"
+  display_name = "AWS EC2 (Linux) SAM"
+  description = "Provision AWS EC2 ARM64 VMs as Serverless Development Coder workspaces"
+  icon = "/icon/aws.png"
+  versions = [{
+    directory = "./aws-linux-sam"
     active    = true
     # Version name is optional
     name = var.coder_gitsha
