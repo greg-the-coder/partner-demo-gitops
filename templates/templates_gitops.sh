@@ -9,6 +9,5 @@ export TF_VAR_coder_token=$1
 export TF_VAR_coder_gitsha="$(git log -1 --format=%H)"
 
 #Execute Terraform Sync
-terrarorm init
 terraform refresh
 terraform apply
