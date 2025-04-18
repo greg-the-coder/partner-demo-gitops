@@ -164,3 +164,23 @@ resource "coderd_template" "aws-linux-sam" {
     groups = []
   }
 }
+
+resource "coderd_template" "aws-windows-dcv" {
+  name        = "aws-windows-dcv"
+  display_name = "AWS EC2 (Windows) DCV"
+  description = "Provision AWS EC2 Windows VMs as Coder workspaces accessible via browser using Amazon DCV"
+  icon = "/icon/aws.png"
+  versions = [{
+    directory = "./aws-windows-dcv"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+  }]
+  acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
+    groups = []
+  }
+}
