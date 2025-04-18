@@ -83,8 +83,8 @@ resource "coderd_template" "kubernetes-devcontainer" {
 
 resource "coderd_template" "aws-linux-agentic-sam" {
   name        = "aws-linux-agentic-sam-gitops"
-  display_name = "AWS EC2 Linux Agentic SAM"
-  description = "AWS EC2 VM Workspace for Agentic Serverless Development"
+  display_name = "AWS EC2 (Linux) Agentic SAM"
+  description = "Provision AWS EC2 VM Coder Workspace for Agentic Serverless Development"
   icon = "/icon/aws.png"
   versions = [{
     directory = "./aws-linux-agentic-sam"
@@ -92,8 +92,8 @@ resource "coderd_template" "aws-linux-agentic-sam" {
     # Version name is optional
     name = var.coder_gitsha
     tf_vars = [{
-      name  = "namespace"
-      value = "coder"
+      name  = "anthropic_api_key"
+      value = "default"
     }]
   }]
   acl = {
