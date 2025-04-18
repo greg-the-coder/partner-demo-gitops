@@ -37,7 +37,7 @@ resource "coderd_template" "kubernetes-base" {
   name        = "kubernetes-base-gitops"
   display_name = "Kubernetes (Deployment) GitOps"
   description = "Provision Kubernetes Deployments as Coder workspaces."
-  icon = "/icon/aws.svg"
+  icon = "/icon/k8s.png"
   versions = [{
     directory = "./kubernetes-base"
     active    = true
@@ -61,9 +61,33 @@ resource "coderd_template" "kubernetes-devcontainer" {
   name        = "kubernetes-devcontainer-gitops"
   display_name = "Devcontainers (Kubernetes) GitOps"
   description = "Provision envbuilder pods as Coder workspaces"
-  icon = "/icon/aws.svg"
+  icon = "/icon/k8s.png"
   versions = [{
     directory = "./kubernetes-devcontainer"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+    tf_vars = [{
+      name  = "namespace"
+      value = "coder"
+    }]
+  }]
+  acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
+    groups = []
+  }
+}
+
+resource "coderd_template" "aws-linux-agentic-sam" {
+  name        = "aws-linux-agentic-sam-gitops"
+  display_name = "AWS EC2 Linux Agentic SAM"
+  description = "AWS EC2 VM Workspace for Agentic Serverless Development"
+  icon = "/icon/aws.png"
+  versions = [{
+    directory = "./aws-linux-agentic-sam"
     active    = true
     # Version name is optional
     name = var.coder_gitsha
