@@ -62,11 +62,11 @@ data "coder_parameter" "cpu" {
   display_name = "CPU"
   description  = "CPU limit (cores)."
   default      = "2"
-  icon         = "/emojis/1f5a5.png"
+  icon         = "/icon/cpu.svg"
   mutable      = true
   validation {
     min = 1
-    max = 99999
+    max = 2
   }
   order = 1
 }
@@ -81,7 +81,7 @@ data "coder_parameter" "memory" {
   mutable      = true
   validation {
     min = 1
-    max = 99999
+    max = 4
   }
   order = 2
 }
