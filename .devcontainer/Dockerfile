@@ -22,10 +22,6 @@ RUN sudo curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/m
 && sudo chmod 700 get_helm.sh \
 && sudo ./get_helm.sh
 
-#Install Kubectl
-RUN sudo curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
-RUN sudo echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-
 # Install kubectl
 RUN sudo curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" \
 && sudo chmod +x kubectl \
