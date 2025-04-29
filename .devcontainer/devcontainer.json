@@ -3,7 +3,17 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"amazonwebservices.amazon-q-vscode"
+			]
+		}
+	},
 	"remoteEnv": {
-        	"CODER": "devcontainer"
-        }
+        "CODER": "devcontainer"
+    }
 }
