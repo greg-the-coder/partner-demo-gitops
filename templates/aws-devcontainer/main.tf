@@ -294,7 +294,8 @@ resource "coder_agent" "dev" {
   }
   startup_script = <<-EOT
     # Install IDE extensions
-    mkdir -p ~/.vscode-server/extensions
+    cd /workspaces
+    mkdir -p .vscode-server/extensions
     set +e
     extensions=( $(sed 's/\/\/.*$//g' */.devcontainer/devcontainer.json | jq -r -M '[.customizations.vscode.extensions[]?, .extensions[]?] | .[]' ) )
     if [ "$${extensions[0]}" != "" ] && [ "$${extensions[0]}" != "null" ]; then
