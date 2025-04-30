@@ -365,4 +365,4 @@ resource "coder_metadata" "info" {
 #   source   = "registry.coder.com/modules/code-server/coder"
 #   version  = "1.0.18"
 #   agent_id = coder_agent.dev[0].id
-}
+# }
