@@ -293,9 +293,15 @@ resource "coder_agent" "dev" {
     GIT_COMMITTER_EMAIL = local.git_author_email
   }
   startup_script = <<-EOT
+    set -e
+
+    # Install the latest code-server.
+    # Append "--version x.x.x" to install a specific version of code-server.
+    curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server
+
     # Install IDE extensions
     cd /workspaces
-    mkdir -p .vscode-server/extensions
+    sudo mkdir -p .vscode-server/extensions
     set +e
     extensions=( $(sed 's/\/\/.*$//g' */.devcontainer/devcontainer.json | jq -r -M '[.customizations.vscode.extensions[]?, .extensions[]?] | .[]' ) )
     if [ "$${extensions[0]}" != "" ] && [ "$${extensions[0]}" != "null" ]; then
@@ -304,6 +310,9 @@ resource "coder_agent" "dev" {
         SERVICE_URL=https://open-vsx.org/vscode/gallery ITEM_URL=https://open-vsx.org/vscode/item /tmp/code-server/bin/code-server --install-extension "$extension"
       done
     fi
+
+    # Start code-server in the background.
+    /tmp/code-server/bin/code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
   EOT
 
   metadata {
@@ -351,9 +360,9 @@ resource "coder_metadata" "info" {
   }
 }
 
-module "code-server" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/modules/code-server/coder"
-  version  = "1.0.18"
-  agent_id = coder_agent.dev[0].id
+# module "code-server" {
+#   count    = data.coder_workspace.me.start_count
+#   source   = "registry.coder.com/modules/code-server/coder"
+#   version  = "1.0.18"
+#   agent_id = coder_agent.dev[0].id
 }
