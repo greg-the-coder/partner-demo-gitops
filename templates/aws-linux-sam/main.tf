@@ -119,6 +119,9 @@ resource "coder_agent" "dev" {
     curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server --version 4.11.0
     /tmp/code-server/bin/code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
 
+    # install Amazon Q Developer extension
+    SERVICE_URL=https://open-vsx.org/vscode/gallery ITEM_URL=https://open-vsx.org/vscode/item /tmp/code-server/bin/code-server --install-extension amazonwebservices.amazon-q-vscode
+
     # install AWS CLI
     if [ ! -d "aws" ]; then
       sudo apt install -y curl unzip
