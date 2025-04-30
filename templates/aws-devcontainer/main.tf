@@ -292,6 +292,18 @@ resource "coder_agent" "dev" {
     GIT_COMMITTER_NAME  = local.git_author_name
     GIT_COMMITTER_EMAIL = local.git_author_email
   }
+  startup_script = <<-EOT
+    # Install IDE extensions
+    mkdir -p ~/.vscode-server/extensions
+    set +e
+    extensions=( $(sed 's/\/\/.*$//g' */.devcontainer/devcontainer.json | jq -r -M '[.customizations.vscode.extensions[]?, .extensions[]?] | .[]' ) )
+    if [ "$${extensions[0]}" != "" ] && [ "$${extensions[0]}" != "null" ]; then
+      for extension in "$${extensions[@]}"; do
+        /tmp/code-server/bin/code-server --extensions-dir ~/.vscode-server/extensions --install-extension "$extension"
+        SERVICE_URL=https://open-vsx.org/vscode/gallery ITEM_URL=https://open-vsx.org/vscode/item /tmp/code-server/bin/code-server --install-extension "$extension"
+      done
+    fi
+  EOT
 
   metadata {
     key          = "cpu"
