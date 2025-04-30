@@ -341,6 +341,17 @@ resource "coder_agent" "main" {
     # Append "--version x.x.x" to install a specific version of code-server.
     curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server
 
+    # Install IDE extensions
+    mkdir -p ~/.vscode-server/extensions
+    set +e
+    extensions=( $(sed 's/\/\/.*$//g' */.devcontainer/devcontainer.json | jq -r -M '[.customizations.vscode.extensions[]?, .extensions[]?] | .[]' ) )
+    if [ "$${extensions[0]}" != "" ] && [ "$${extensions[0]}" != "null" ]; then
+      for extension in "$${extensions[@]}"; do
+        /tmp/code-server/bin/code-server --extensions-dir ~/.vscode-server/extensions --install-extension "$extension"
+        SERVICE_URL=https://open-vsx.org/vscode/gallery ITEM_URL=https://open-vsx.org/vscode/item /tmp/code-server/bin/code-server --install-extension "$extension"
+      done
+    fi
+
     # Start code-server in the background.
     /tmp/code-server/bin/code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
   EOT
