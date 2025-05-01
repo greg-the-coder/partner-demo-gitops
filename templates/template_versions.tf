@@ -164,6 +164,10 @@ resource "coderd_template" "aws-linux-q-base" {
     active    = true
     # Version name is optional
     name = var.coder_gitsha
+    tf_vars = [{
+      name  = "aws_iam_profile"
+      value = "coder"
+    }]
   }]
   acl = {
     users = [{
