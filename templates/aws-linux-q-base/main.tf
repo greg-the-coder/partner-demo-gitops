@@ -135,7 +135,7 @@ resource "coder_agent" "dev" {
     # install AWS CLI
     if [ ! -d "aws" ]; then
       sudo apt install -y curl unzip
-      curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-aarchx86.zip" -o "awscliv2.zip"
       unzip awscliv2.zip
       sudo ./aws/install
       aws --version
