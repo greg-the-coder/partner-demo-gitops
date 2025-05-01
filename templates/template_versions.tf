@@ -154,6 +154,26 @@ resource "coderd_template" "aws-linux-base" {
   }
 }
 
+resource "coderd_template" "aws-linux-q-base" {
+  name        = "aws-linux-q-base"
+  display_name = "AWS EC2 (Linux) Q Developer"
+  description = "Provision AWS EC2 VMs as Q Developer enabled Coder workspaces"
+  icon = "/icon/aws.png"
+  versions = [{
+    directory = "./aws-linux-q-base"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+  }]
+  acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
+    groups = []
+  }
+}
+
 resource "coderd_template" "aws-linux-sam" {
   name        = "aws-linux-sam"
   display_name = "AWS EC2 (Linux) SAM"
