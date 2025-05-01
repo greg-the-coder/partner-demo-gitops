@@ -131,16 +131,27 @@ resource "coder_agent" "dev" {
   os             = "linux"
   startup_script = <<-EOT
     set -e
+    sudo apt update
+    sudo apt install -y curl unzip
 
     # install AWS CLI
     if [ ! -d "aws" ]; then
-      sudo apt install -y curl unzip
-      curl "https://awscli.amazonaws.com/awscli-exe-linux-aarchx86.zip" -o "awscliv2.zip"
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       unzip awscliv2.zip
       sudo ./aws/install
       aws --version
       rm awscliv2.zip
     fi
+
+    # install Q Developer CLI
+    if [ ! -d "q" ]; then
+      curl --proto '=https' --tlsv1.2 -sSf "https://desktop-release.q.us-east-1.amazonaws.com/latest/q-x86_64-linux-musl.zip" -o "q.zip"
+      unzip q.zip
+      sudo ./q/install.sh
+      q --version
+      rm q.zip
+    fi
+
 
   EOT
 
