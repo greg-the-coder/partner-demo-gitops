@@ -147,7 +147,7 @@ resource "coder_agent" "dev" {
     if [ ! -d "q" ]; then
       curl --proto '=https' --tlsv1.2 -sSf "https://desktop-release.q.us-east-1.amazonaws.com/latest/q-x86_64-linux-musl.zip" -o "q.zip"
       unzip q.zip
-      ./q/install.sh
+      ./q/install.sh --global --no-confirm
       q --version
       rm q.zip
     fi
