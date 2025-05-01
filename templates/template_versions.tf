@@ -166,7 +166,7 @@ resource "coderd_template" "aws-linux-q-base" {
     name = var.coder_gitsha
     tf_vars = [{
       name  = "aws_iam_profile"
-      value = "coder"
+      value = "gtc-demo-aws-workshop-access"
     }]
   }]
   acl = {
