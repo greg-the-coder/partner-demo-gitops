@@ -108,6 +108,11 @@ provider "aws" {
   region = data.coder_parameter.region.value
 }
 
+#### Update to Workshop IAM Instance Profile
+data "aws_iam_instance_profile" "vm_instance_profile" {
+  name  = "gtc-demo-aws-workshop-access"
+}
+
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
 
@@ -223,9 +228,10 @@ data "cloudinit_config" "user_data" {
 }
 
 resource "aws_instance" "dev" {
-  ami               = data.aws_ami.ubuntu.id
-  availability_zone = "${data.coder_parameter.region.value}a"
-  instance_type     = data.coder_parameter.instance_type.value
+  ami                  = data.aws_ami.ubuntu.id
+  availability_zone    = "${data.coder_parameter.region.value}a"
+  instance_type        = data.coder_parameter.instance_type.value
+  iam_instance_profile = data.aws_iam_instance_profile.vm_instance_profile.name
 
   user_data = data.cloudinit_config.user_data.rendered
   tags = {
