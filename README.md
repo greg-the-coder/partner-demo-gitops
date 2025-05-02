@@ -38,3 +38,5 @@ coder login $CODER_AGENT_URL
 ## Features
 - Demonstrates Coder Kubernetes Devcontainer Workspaces for Platform Engineering
 - Implements basic GitOps workflow for Coder Template adminstration using Coder CLI, Terraform, and Git for template change management 
+- Other template source available at the [Coder Template Registry](https://registry.coder.com/templates)
+
