@@ -166,11 +166,13 @@ resource "coder_agent" "dev" {
     if ! command -v cdk &> /dev/null; then
       echo "Installing AWS CDK..."
       # Install Node.js and npm (required for CDK)
-      sudo apt install -y nodejs npm
-      
-      # Update npm to latest version
-      sudo npm install -g npm@latest
-      
+      # Add NodeSource repository for the latest LTS version
+      curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+
+      # Verify installation
+      node -v
+      npm -v
+
       # Install AWS CDK globally
       sudo npm install -g aws-cdk
       
