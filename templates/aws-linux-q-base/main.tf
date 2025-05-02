@@ -168,6 +168,8 @@ resource "coder_agent" "dev" {
       # Install Node.js and npm (required for CDK)
       # Add NodeSource repository for the latest LTS version
       curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+      sudo apt-get install nodejs -y
+      sudo npm install -g npm@11.3.0
 
       # Verify installation
       node -v
