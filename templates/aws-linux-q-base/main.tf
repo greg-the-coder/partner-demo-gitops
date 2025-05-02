@@ -156,10 +156,31 @@ resource "coder_agent" "dev" {
 
     # install Q Developer CLI
     if [ ! -d "q" ]; then
-      curl --proto '=https' --tlsv1.2 -sSf "https://desktop-release.q.us-east-1.amazonaws.com/latest/q-x86_64-linux-musl.zip" -o "q.zip"
+      curl "https://desktop-release.q.us-east-1.amazonaws.com/latest/q-x86_64-linux-musl.zip" -o "q.zip"
       unzip q.zip
       ./q/install.sh --global --no-confirm
       rm q.zip
+    fi
+
+    # install AWS CDK
+    if ! command -v cdk &> /dev/null; then
+      echo "Installing AWS CDK..."
+      # Install Node.js and npm (required for CDK)
+      sudo apt install -y nodejs npm
+      
+      # Update npm to latest version
+      sudo npm install -g npm@latest
+      
+      # Install AWS CDK globally
+      sudo npm install -g aws-cdk
+      
+      # Verify CDK installation
+      cdk --version
+      
+      echo "AWS CDK installation completed"
+    else
+      echo "AWS CDK is already installed"
+      cdk --version
     fi
 
   EOT
