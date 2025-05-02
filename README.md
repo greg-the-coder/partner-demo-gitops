@@ -3,9 +3,9 @@
 Partner Demo of GitOps flow for Coder Admin
 
 ## Overview
-A demonstration project showcasing GitOps workflows and best practices for Coder administration. This repo is meant to be used in conjunction with our [Kubernetes Devcontainer template](https://registry.coder.com/templates/kubernetes-devcontainer), which creates a Coder Workspace a Coder Admin can use for deployment and template administration.  The [.devcontainer specification](./.devcontainer/) contained in this repo will deploy a Workspace that has Terraform, Helm, Kubectl utilities provisioned, and then clone this repo into it container a core set of Kubernetes and AWS Workspace [templates](./templates/) that support common development use cases. 
+A demonstration project showcasing GitOps workflows and best practices for Coder administration. This repo is meant to be used in conjunction with our [Kubernetes Devcontainer template](https://registry.coder.com/templates/kubernetes-devcontainer), which creates a Coder Workspace a Coder Admin can use for deployment and template administration.  The [.devcontainer specification](./.devcontainer/) contained in this repo will deploy a Workspace that has terraform, helm, and kubectl utilities provisioned that are commonly used by Platform Engineering teams supporting Coder. 
 
-Terraform IaC is provided along with bash script [templates_gitops.sh](./templates/templates_gitops.sh) that enable Coder templates to be created and versioned within this repo using a Terraform-based GitOps flow.
+IaC is provided as terraform scripts along with bash script [templates_gitops.sh](./templates/templates_gitops.sh) that enable Coder templates to be created and versioned within this repo using a terraform-based GitOps flow.
 
 ## Prerequisites
 - Coder 2.X deployment on K8S
@@ -18,11 +18,11 @@ Terraform IaC is provided along with bash script [templates_gitops.sh](./templat
 3. Use the repo you forked/copied for the Repository parameter of the created Workspace
 
 ## GitOps Workflow
-Describe the GitOps workflow implemented in this demo:
+The GitOps workflow implemented in this demo uses terraform IaC, the Coder CLI, and a supplied bash script:
 - [template_versions.tf](./templates/template_versions.tf) - Coder Template resource definitions
 - [templates/..](./templates/) - Subdirectory for Coder Template IaC source code referenced in template_versions.tf
 - From Coder Workspace, open a terminal and cd to [templates](./templates/)
-- Initialize your Worspace terraform environment
+- Initialize your Workspace terraform environment
 ```bash
 terraform init
 ``` 
