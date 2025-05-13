@@ -1,6 +1,6 @@
 ---
 display_name: AWS EC2 (Devcontainer)
-description: Provision AWS EC2 VMs using the Amazon Bottlerocket OS with a devcontainer as Coder workspaces
+description: *** Under development *** Provision AWS EC2 VMs using the Amazon Bottlerocket OS with a devcontainer as Coder workspaces
 icon: ../../../site/static/icon/aws.svg
 maintainer_github: coder
 verified: true
