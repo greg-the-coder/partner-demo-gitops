@@ -111,7 +111,7 @@ resource "coderd_template" "aws-devcontainer" {
 }
 
 resource "coderd_template" "aws-devcontainer-br" {
-  name        = "aws-devcontainer"
+  name        = "aws-devcontainer-br"
   display_name = "Devcontainers (AWS EC2 Linux/Bottlerocket)"
   description = "Provision envbuilder containers on AWS EC2 VMs using Amazon Bottlerocket OS as Coder workspaces"
   icon = "/icon/aws.png"
