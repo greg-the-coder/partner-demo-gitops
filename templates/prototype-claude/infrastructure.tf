@@ -17,7 +17,7 @@ locals {
   # See AMIs here: https://us-east-2.console.aws.amazon.com/ec2/home?region=us-east-2#Images:visibility=owned-by-me;v=3;$case=tags:false%5C,client:false;$regex=tags:false%5C,client:false
   #ami_id               = "ami-04f093e9b5bf94f4a" #demo-ami-2
   ami_id = "ami-0171520e335263d60" # ms-universal-container
-  iam_instance_profile_name = "ec2-claude-code-bedrock"
+  iam_instance_profile_name = "gtc-demo-aws-workshop-access"
   volume_size = 64
   volume_type = "gp3"
   hostname   = lower(data.coder_workspace.me.name)
