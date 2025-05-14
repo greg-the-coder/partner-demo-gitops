@@ -18,6 +18,7 @@ terraform {
 # GitHub token on behalf of bot account
 variable "github_token" {
   sensitive = true
+  default = ""
 }
 
 data "coder_workspace" "me" {}
@@ -159,8 +160,6 @@ Hey! The user will provide you with a prompt of something to create. Create it t
     ANTHROPIC_SMALL_FAST_MODEL="us.anthropic.claude-3-5-haiku-20241022-v1:0",
     GH_TOKEN = var.github_token,
     AWS_REGION = "us-east-2",
-    AWS_ACCESS_KEY_ID = var.aws_access_key,
-    AWS_SECRET_ACCESS_KEY = var.aws_secret_access_key,
     CODER_MCP_APP_STATUS_SLUG = "claude-code"
   }
 }

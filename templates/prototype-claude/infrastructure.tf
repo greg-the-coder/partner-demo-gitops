@@ -31,12 +31,12 @@ locals {
 }
 
 
-variable "aws_access_key" {
-}
+#variable "aws_access_key" {
+#}
 
-variable "aws_secret_access_key" {
-  sensitive = true
-}
+#variable "aws_secret_access_key" {
+#  sensitive = true
+#}
 
 data "cloudinit_config" "user_data" {
   gzip          = false
