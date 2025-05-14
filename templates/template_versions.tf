@@ -216,6 +216,7 @@ resource "coderd_template" "aws-windows-dcv" {
     }]
     groups = []
   }
+}
 
 resource "coderd_template" "prototype-agentic-claude" {
   name        = "prototype-agentic-claude"
@@ -235,6 +236,4 @@ resource "coderd_template" "prototype-agentic-claude" {
     }]
     groups = []
   }
-}
-
 }
