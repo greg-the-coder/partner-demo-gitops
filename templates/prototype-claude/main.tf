@@ -33,7 +33,7 @@ module "coder-login" {
 
 data "coder_parameter" "ai_prompt" {
   type        = "string"
-  name        = "AI Prompt"
+  name        = "AI Prompt for Development task to execute"
   icon        = "/emojis/1f4ac.png"
   order       = 0
   default     = ""
