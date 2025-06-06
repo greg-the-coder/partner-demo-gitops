@@ -111,7 +111,7 @@ data "coder_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
   description  = "What ARM64 instance type should your workspace use?"
-  default      = "g5g.xlarge"
+  default      = "t4g.medium"
   mutable      = false
   option {
     name  = "2 vCPU, 4 GiB RAM"
