@@ -115,11 +115,11 @@ data "coder_parameter" "instance_type" {
   mutable      = false
   option {
     name  = "2 vCPU, 4 GiB RAM"
-    value = "t4g.medium"
+    value = "t4.medium"
   }
   option {
     name  = "2 vCPU, 8 GiB RAM"
-    value = "t4g.large"
+    value = "t4.large"
   }
   option {
     name  = "4 vCPU, 16 GiB RAM"
