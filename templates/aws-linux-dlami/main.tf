@@ -157,7 +157,7 @@ data "aws_ami" "dlami" {
 
 resource "coder_agent" "dev" {
   count          = data.coder_workspace.me.start_count
-  arch           = "x86"
+  arch           = "amd64"
   auth           = "aws-instance-identity"
   os             = "linux"
   startup_script = <<-EOT
