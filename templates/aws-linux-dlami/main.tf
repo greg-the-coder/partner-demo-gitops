@@ -111,23 +111,15 @@ data "coder_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
   description  = "What ARM64 instance type should your workspace use?"
-  default      = "t4g.medium"
+  default      = "g5g.xlarge"
   mutable      = false
   option {
-    name  = "2 vCPU, 4 GiB RAM"
-    value = "t4g.medium"
+    name  = "1 GPU, 4 vCPU, 8 GiB RAM"
+    value = "g5g.xlarge"
   }
   option {
-    name  = "2 vCPU, 8 GiB RAM"
-    value = "t4g.large"
-  }
-  option {
-    name  = "4 vCPU, 16 GiB RAM"
-    value = "t4g.xlarge"
-  }
-  option {
-    name  = "8 vCPU, 32 GiB RAM"
-    value = "t4g.2xlarge"
+    name  = "1 GPU, 8 vCPU, 16 GiB RAM"
+    value = "g5g.2xlarge"
   }
 }
 
@@ -142,7 +134,7 @@ data "aws_ami" "dlami" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["Deep Learning ARM64 Conda OSS Nvidia Driver GPU AMI (Ubuntu 22.04) ????????"]
+    values = ["Deep Learning ARM64 AMI OSS NVIDIA Driver GPU PyTorch 2.6 (Ubuntu 22.04) ????????"]
   }
   filter {
     name   = "architecture"
