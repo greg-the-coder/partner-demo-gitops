@@ -154,6 +154,26 @@ resource "coderd_template" "aws-linux-base" {
   }
 }
 
+resource "coderd_template" "aws-linux-dlami" {
+  name        = "aws-linux-dlami"
+  display_name = "AWS EC2 (Linux) Deep Learning AMI"
+  description = "Provision AWS Deep Learning AMI (ARM64) as Coder workspaces"
+  icon = "/icon/aws.png"
+  versions = [{
+    directory = "./aws-linux-dlami"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+  }]
+  acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
+    groups = []
+  }
+}
+
 resource "coderd_template" "aws-linux-q-base" {
   name        = "aws-linux-q-base"
   display_name = "AWS EC2 (Linux) Q Developer"
