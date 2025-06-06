@@ -123,11 +123,11 @@ data "coder_parameter" "instance_type" {
   }
   option {
     name  = "4 vCPU, 16 GiB RAM"
-    value = "t4g.xlarge"
+    value = "g5g.xlarge"
   }
   option {
     name  = "8 vCPU, 32 GiB RAM"
-    value = "t4g.2xlarge"
+    value = "g5g.2xlarge"
   }
 }
 
@@ -165,7 +165,7 @@ resource "coder_agent" "dev" {
 
     # Activate PyTorch environment for ARM64
     echo "Activating PyTorch environment..."
-    source activate pytorch_p310
+    source /opt/pytorch/bin/activate
     
     # Verify PyTorch installation with ARM64 support
     python -c "import torch; print('PyTorch version:', torch.__version__); print('CUDA available:', torch.cuda.is_available())"
