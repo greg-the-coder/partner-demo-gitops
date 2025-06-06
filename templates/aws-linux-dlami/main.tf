@@ -123,11 +123,11 @@ data "coder_parameter" "instance_type" {
   }
   option {
     name  = "4 vCPU, 16 GiB RAM"
-    value = "g5g.xlarge"
+    value = "g5.xlarge"
   }
   option {
     name  = "8 vCPU, 32 GiB RAM"
-    value = "g5g.2xlarge"
+    value = "g5.2xlarge"
   }
 }
 
@@ -142,11 +142,11 @@ data "aws_ami" "dlami" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["Deep Learning ARM64 AMI OSS Nvidia Driver GPU PyTorch 2.6.? (Ubuntu 22.04) ????????"]
+    values = ["Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.6.? (Ubuntu 22.04) ????????"]
   }
   filter {
     name   = "architecture"
-    values = ["arm64"]  
+    values = ["x86"]  
   }
   filter {
     name   = "virtualization-type"
@@ -157,7 +157,7 @@ data "aws_ami" "dlami" {
 
 resource "coder_agent" "dev" {
   count          = data.coder_workspace.me.start_count
-  arch           = "arm64"
+  arch           = "x86"
   auth           = "aws-instance-identity"
   os             = "linux"
   startup_script = <<-EOT
