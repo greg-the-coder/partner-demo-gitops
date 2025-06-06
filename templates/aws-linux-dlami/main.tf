@@ -148,7 +148,7 @@ data "aws_ami" "dlami" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["AWS Neuron PyTorch*"]
+    values = ["Deep Learning AMI Neuron PyTorch*"]
   }
   filter {
     name   = "architecture"
