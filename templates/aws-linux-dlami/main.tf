@@ -171,7 +171,19 @@ resource "coder_agent" "dev" {
 
     # Activate AWS Neuron environment for Trainium
     echo "Activating AWS Neuron environment..."
-    source /opt/aws/neuron/bin/activate
+    # Try different possible locations for the Neuron environment
+    if [ -f "/opt/aws/neuron/bin/activate" ]; then
+      source /opt/aws/neuron/bin/activate
+    elif [ -f "/opt/amazon/neuron/bin/activate" ]; then
+      source /opt/amazon/neuron/bin/activate
+    elif [ -d "/opt/conda/envs/pytorch_neuron" ]; then
+      source /opt/conda/bin/activate pytorch_neuron
+    else
+      echo "Searching for Neuron environments..."
+      find /opt -name "activate" | grep -i neuron
+      # If no specific activation script found, use system Python
+      echo "Using system Python as fallback"
+    fi
     
     # Verify PyTorch Neuron installation
     python -c "import torch; import torch_neuron; print('PyTorch version:', torch.__version__); print('Torch Neuron version:', torch_neuron.__version__)"
