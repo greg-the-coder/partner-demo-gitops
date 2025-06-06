@@ -110,21 +110,35 @@ data "coder_parameter" "region" {
 data "coder_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
-  description  = "What x64 instance type should your workspace use?"
-  default      = "g4dn.xlarge"
+  description  = "Select an instance type for your workspace"
+  default      = "trn1.2xlarge"
   mutable      = false
   option {
-    name  = "4 vCPU, 16 GiB RAM"
-    value = "g4dn.xlarge"
+    name  = "Trainium - 8 vCPU, 32 GiB RAM, 1 Trainium chip"
+    value = "trn1.2xlarge"
   }
   option {
-    name  = "8 vCPU, 32 GiB RAM"
-    value = "g4dn.2xlarge"
+    name  = "Trainium - 32 vCPU, 128 GiB RAM, 16 Trainium chips"
+    value = "trn1.32xlarge"
+  }
+  option {
+    name  = "Trainium (Enhanced Network) - 32 vCPU, 128 GiB RAM, 16 Trainium chips"
+    value = "trn1n.32xlarge"
+  }
+  option {
+    name  = "GPU - 4 vCPU, 16 GiB RAM, 1 NVIDIA T4"
+    value = "g4dn.xlarge"
   }
 }
 
 provider "aws" {
   region = data.coder_parameter.region.value
+}
+
+# Trainium instances are only available in specific regions
+locals {
+  trainium_regions = ["us-east-1", "us-east-2", "us-west-2"]
+  is_trainium_region = contains(local.trainium_regions, data.coder_parameter.region.value)
 }
 
 data "coder_workspace" "me" {}
@@ -134,12 +148,12 @@ data "aws_ami" "dlami" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.6.? (Ubuntu 22.04) ????????"]
+    values = ["AWS Neuron PyTorch*"]
   }
-#  filter {
-#    name   = "architecture"
-#    values = ["amd64"]  
-#  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
@@ -155,15 +169,20 @@ resource "coder_agent" "dev" {
   startup_script = <<-EOT
     set -e
 
-    # Activate PyTorch environment for ARM64
-    echo "Activating PyTorch environment..."
-    source /opt/pytorch/bin/activate
+    # Activate AWS Neuron environment for Trainium
+    echo "Activating AWS Neuron environment..."
+    source /opt/aws/neuron/bin/activate
     
-    # Verify PyTorch installation with ARM64 support
-    python -c "import torch; print('PyTorch version:', torch.__version__); print('CUDA available:', torch.cuda.is_available())"
+    # Verify PyTorch Neuron installation
+    python -c "import torch; import torch_neuron; print('PyTorch version:', torch.__version__); print('Torch Neuron version:', torch_neuron.__version__)"
     
     # Install additional packages if needed
     pip install --no-cache-dir jupyterlab matplotlib pandas scikit-learn
+    
+    # Set up Neuron Monitor
+    sudo systemctl start neuron-monitor.service
+    
+    echo "Workspace ready with AWS Neuron for Trainium!"
   EOT
 
   metadata {
@@ -287,11 +306,11 @@ resource "coder_metadata" "workspace_info" {
   }
   item {
     key   = "environment"
-    value = "PyTorch on ARM64"
+    value = "PyTorch Neuron for Trainium"
   }
   item {
     key   = "ami"
-    value = "AWS Deep Learning AMI"
+    value = "AWS Neuron PyTorch AMI"
   }
 }
 
