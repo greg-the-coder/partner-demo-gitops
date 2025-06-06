@@ -146,7 +146,7 @@ data "aws_ami" "dlami" {
   }
   filter {
     name   = "architecture"
-    values = ["x86"]  
+    values = ["amd64"]  
   }
   filter {
     name   = "virtualization-type"
