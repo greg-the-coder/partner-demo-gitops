@@ -110,24 +110,24 @@ data "coder_parameter" "region" {
 data "coder_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
-  description  = "What instance type should your workspace use?"
-  default      = "g4dn.xlarge"
+  description  = "What ARM64 instance type should your workspace use?"
+  default      = "t4g.medium"
   mutable      = false
   option {
-    name  = "4 vCPU, 16 GiB RAM, 1 GPU"
-    value = "g4dn.xlarge"
+    name  = "2 vCPU, 4 GiB RAM"
+    value = "t4g.medium"
   }
   option {
-    name  = "8 vCPU, 32 GiB RAM, 1 GPU"
-    value = "g4dn.2xlarge"
+    name  = "2 vCPU, 8 GiB RAM"
+    value = "t4g.large"
   }
   option {
-    name  = "16 vCPU, 64 GiB RAM, 1 GPU"
-    value = "g4dn.4xlarge"
+    name  = "4 vCPU, 16 GiB RAM"
+    value = "t4g.xlarge"
   }
   option {
-    name  = "2 vCPU, 8 GiB RAM (CPU only)"
-    value = "t3.large"
+    name  = "8 vCPU, 32 GiB RAM"
+    value = "t4g.2xlarge"
   }
 }
 
@@ -142,11 +142,11 @@ data "aws_ami" "dlami" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["Deep Learning Base OSS Nvidia Driver AMI (Ubuntu 22.04) *"]
+    values = ["Deep Learning ARM64 Base OSS Nvidia Driver GPU AMI (Ubuntu 22.04) ????????"]
   }
   filter {
     name   = "architecture"
-    values = ["x86_64"]  
+    values = ["arm64"]  
   }
   filter {
     name   = "virtualization-type"
@@ -157,7 +157,7 @@ data "aws_ami" "dlami" {
 
 resource "coder_agent" "dev" {
   count          = data.coder_workspace.me.start_count
-  arch           = "amd64"
+  arch           = "arm64"
   auth           = "aws-instance-identity"
   os             = "linux"
   startup_script = <<-EOT
