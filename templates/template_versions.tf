@@ -237,23 +237,3 @@ resource "coderd_template" "aws-windows-dcv" {
     groups = []
   }
 }
-
-resource "coderd_template" "prototype-agentic-claude" {
-  name        = "prototype-agentic-claude"
-  display_name = "Prototype Anything with Claude Code"
-  description = "Create any website, CLI tool, or package using Claude Code."
-  icon = "/icon/claude.svg"
-  versions = [{
-    directory = "./prototype-claude"
-    active    = true
-    # Version name is optional
-    name = var.coder_gitsha
-  }]
-  acl = {
-    users = [{
-      id   = coderd_user.coderGitOps.id
-      role = "admin"
-    }]
-    groups = []
-  }
-}
