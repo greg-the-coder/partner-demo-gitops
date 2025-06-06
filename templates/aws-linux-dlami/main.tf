@@ -134,7 +134,7 @@ data "aws_ami" "dlami" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["Deep Learning ARM64 AMI OSS NVIDIA Driver GPU PyTorch 2.6 (Ubuntu 22.04) ????????"]
+    values = ["Deep Learning ARM64 AMI OSS Nvidia Driver GPU PyTorch 2.6.? (Ubuntu 22.04) ????????"]
   }
   filter {
     name   = "architecture"
