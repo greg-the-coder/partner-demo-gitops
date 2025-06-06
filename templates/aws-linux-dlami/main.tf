@@ -114,12 +114,20 @@ data "coder_parameter" "instance_type" {
   default      = "g5g.xlarge"
   mutable      = false
   option {
-    name  = "1 GPU, 4 vCPU, 8 GiB RAM"
-    value = "g5g.xlarge"
+    name  = "2 vCPU, 4 GiB RAM"
+    value = "t4g.medium"
   }
   option {
-    name  = "1 GPU, 8 vCPU, 16 GiB RAM"
-    value = "g5g.2xlarge"
+    name  = "2 vCPU, 8 GiB RAM"
+    value = "t4g.large"
+  }
+  option {
+    name  = "4 vCPU, 16 GiB RAM"
+    value = "t4g.xlarge"
+  }
+  option {
+    name  = "8 vCPU, 32 GiB RAM"
+    value = "t4g.2xlarge"
   }
 }
 
