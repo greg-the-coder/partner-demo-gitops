@@ -110,24 +110,16 @@ data "coder_parameter" "region" {
 data "coder_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
-  description  = "What ARM64 instance type should your workspace use?"
-  default      = "t4.medium"
+  description  = "What x64 instance type should your workspace use?"
+  default      = "g4dn.xlarge"
   mutable      = false
   option {
-    name  = "2 vCPU, 4 GiB RAM"
-    value = "t4.medium"
-  }
-  option {
-    name  = "2 vCPU, 8 GiB RAM"
-    value = "t4.large"
-  }
-  option {
     name  = "4 vCPU, 16 GiB RAM"
-    value = "g5.xlarge"
+    value = "g4dn.xlarge"
   }
   option {
     name  = "8 vCPU, 32 GiB RAM"
-    value = "g5.2xlarge"
+    value = "g4dn.2xlarge"
   }
 }
 
