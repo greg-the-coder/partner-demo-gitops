@@ -144,10 +144,10 @@ data "aws_ami" "dlami" {
     name   = "name"
     values = ["Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.6.? (Ubuntu 22.04) ????????"]
   }
-  filter {
-    name   = "architecture"
-    values = ["amd64"]  
-  }
+#  filter {
+#    name   = "architecture"
+#    values = ["amd64"]  
+#  }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
