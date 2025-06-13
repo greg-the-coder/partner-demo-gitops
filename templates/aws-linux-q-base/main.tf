@@ -110,6 +110,19 @@ data "coder_parameter" "instance_type" {
   }
 }
 
+data "coder_parameter" "root_volume_size_gb" {
+  name         = "root_volume_size_gb"
+  display_name = "Root Volume Size (GB)"
+  description  = "How large should the root volume for the instance be?"
+  default      = 30
+  type         = "number"
+  mutable      = true
+  validation {
+    min       = 1
+    monotonic = "increasing"
+  }
+}
+
 provider "aws" {
   region = data.coder_parameter.region.value
 }
@@ -263,6 +276,9 @@ resource "aws_instance" "dev" {
   availability_zone    = "${data.coder_parameter.region.value}a"
   instance_type        = data.coder_parameter.instance_type.value
   iam_instance_profile = data.aws_iam_instance_profile.vm_instance_profile.name
+  root_block_device {
+    volume_size = data.coder_parameter.root_volume_size_gb.value
+  }
 
   user_data = data.cloudinit_config.user_data.rendered
   tags = {
