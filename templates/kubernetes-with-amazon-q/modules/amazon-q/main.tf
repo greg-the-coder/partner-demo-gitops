@@ -120,7 +120,6 @@ resource "coder_script" "amazon_q" {
     #!/bin/bash
     set -o errexit
     set -o pipefail
-    sudo apt update -y
     sudo apt install zstd
 
     # Function to check if a command exists
