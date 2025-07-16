@@ -119,8 +119,8 @@ module "amazon-q" {
   # TODO: put the icon in a CDN Coder controls
   icon                = "https://downloads.marketplace.jetbrains.com/files/24267/727961/icon/default.png"
   # Enable experimental features
-  experiment_use_tmux          = true
-  experiment_report_tasks       = true
+  experiment_use_screen      = true
+  experiment_report_tasks    = true
   experiment_auth_tarball = var.amazon_q_auth_tarball
 }
 
@@ -137,8 +137,6 @@ resource "coder_agent" "main" {
   arch           = "amd64"
   startup_script = <<-EOT
     set -e
-    sudo apt update -y
-    sudo apt install zstd
 
     # Install the latest code-server.
     # Append "--version x.x.x" to install a specific version of code-server.
