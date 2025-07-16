@@ -137,6 +137,8 @@ resource "coder_agent" "main" {
   arch           = "amd64"
   startup_script = <<-EOT
     set -e
+    sudo apt update -y
+    sudo apt install zstd
 
     # Install the latest code-server.
     # Append "--version x.x.x" to install a specific version of code-server.
