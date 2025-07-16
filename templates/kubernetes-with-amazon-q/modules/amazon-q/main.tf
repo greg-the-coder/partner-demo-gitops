@@ -121,7 +121,7 @@ resource "coder_script" "amazon_q" {
     set -o errexit
     set -o pipefail
     sudo apt update
-    sudo apt install zstd
+    sudo apt install -y zstd tmux
 
     # Function to check if a command exists
     command_exists() {
