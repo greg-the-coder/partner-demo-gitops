@@ -278,7 +278,7 @@ resource "coder_app" "amazon_q" {
         tmux attach-session -t amazon-q
       else
         echo "Starting a new Amazon Q tmux session." | tee -a "$HOME/.amazon-q.log"
-        tmux new-session -s amazon-q -c ${var.folder} "q chat --trust-all-tools | tee -a \"$HOME/.amazon-q.log\"; exec bash"
+        tmux new-session -s amazon-q -c ${var.folder} "q chat --trust-all-tools --model claude-3.7-sonnet | tee -a \"$HOME/.amazon-q.log\"; exec bash"
       fi
     elif [ "${var.experiment_use_screen}" = "true" ]; then
       if screen -list | grep -q "amazon-q"; then
