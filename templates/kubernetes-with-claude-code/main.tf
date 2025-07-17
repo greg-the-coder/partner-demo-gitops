@@ -141,7 +141,7 @@ locals {
     EOT
     pre_install_script = <<-EOT
         sudo apt update
-        sudo apt install -y npm tmux
+        sudo apt install -y npm tmux lsof
 
         git clone https://github.com/bcdr-demos/contract-tracker-demo project
         tmux new-session -d -s dev-server -c $HOME/project "npm install && npm run dev"
