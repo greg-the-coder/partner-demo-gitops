@@ -324,7 +324,7 @@ resource "kubernetes_deployment" "dev" {
           name              = "dev"
           image             = "codercom/enterprise-base:ubuntu"
           image_pull_policy = "Always"
-          command           = ["sh", "-c", coder_agent.main.init_script]
+          command           = ["sh", "-c", coder_agent.dev.init_script]
           security_context {
             run_as_user = "1000"
           }
