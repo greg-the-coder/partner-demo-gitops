@@ -303,3 +303,9 @@ resource "coder_app" "amazon_q" {
     EOT
   icon         = var.icon
 }
+
+resource "coder_ai_task" "amazon_q" {
+  sidebar_app {
+    id = coder_app.amazon_q.id
+  }
+}
