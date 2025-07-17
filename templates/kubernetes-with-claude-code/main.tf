@@ -160,6 +160,36 @@ resource "coder_app" "preview" {
     }
 }
 
+resource "kubernetes_persistent_volume_claim" "home" {
+  metadata {
+    name      = "coder-${data.coder_workspace.me.id}-home"
+    namespace = var.namespace
+    labels = {
+      "app.kubernetes.io/name"     = "coder-pvc"
+      "app.kubernetes.io/instance" = "coder-pvc-${data.coder_workspace.me.id}"
+      "app.kubernetes.io/part-of"  = "coder"
+      //Coder-specific labels.
+      "com.coder.resource"       = "true"
+      "com.coder.workspace.id"   = data.coder_workspace.me.id
+      "com.coder.workspace.name" = data.coder_workspace.me.name
+      "com.coder.user.id"        = data.coder_workspace_owner.me.id
+      "com.coder.user.username"  = data.coder_workspace_owner.me.name
+    }
+    annotations = {
+      "com.coder.user.email" = data.coder_workspace_owner.me.email
+    }
+  }
+  wait_until_bound = false
+  spec {
+    access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = "${data.coder_parameter.home_disk_size.value}Gi"
+      }
+    }
+  }
+}
+
 resource "kubernetes_deployment" "dev" {
   count = data.coder_workspace.me.start_count
   depends_on = [
@@ -231,7 +261,7 @@ resource "kubernetes_deployment" "dev" {
           }
           env {
             name  = "CODER_AGENT_TOKEN"
-            value = coder_agent.main.token
+            value = coder_agent.dev.token
           }
           resources {
             requests = {
@@ -281,8 +311,6 @@ resource "kubernetes_deployment" "dev" {
     }
   }
 }
-
-
 
 resource "coder_metadata" "pod_info" {
     count = data.coder_workspace.me.start_count
