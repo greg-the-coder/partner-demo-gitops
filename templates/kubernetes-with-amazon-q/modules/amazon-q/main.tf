@@ -201,7 +201,7 @@ resource "coder_script" "amazon_q" {
       export LC_ALL=en_US.UTF-8
       
       # Create a new tmux session in detached mode
-      tmux new-session -d -s amazon-q -c "${var.folder}" "q chat --trust-all-tools | tee -a "$HOME/.amazon-q.log" && exec bash"
+      tmux new-session -d -s amazon-q -c "${var.folder}" "q chat --trust-all-tools --model claude-3.7-sonnet | tee -a "$HOME/.amazon-q.log" && exec bash"
       
       # Send the prompt to the tmux session if needed
       if [ -n "$FULL_PROMPT" ]; then
@@ -243,7 +243,7 @@ resource "coder_script" "amazon_q" {
       
       screen -U -dmS amazon-q bash -c '
         cd ${var.folder}
-        q chat --trust-all-tools | tee -a "$HOME/.amazon-q.log
+        q chat --trust-all-tools --model claude-3.7-sonnet | tee -a "$HOME/.amazon-q.log
         exec bash
       '
       # Extremely hacky way to send the prompt to the screen session
@@ -280,7 +280,7 @@ resource "coder_app" "amazon_q" {
         tmux attach-session -t amazon-q
       else
         echo "Starting a new Amazon Q tmux session." | tee -a "$HOME/.amazon-q.log"
-        tmux new-session -s amazon-q -c ${var.folder} "q chat --trust-all-tools | tee -a \"$HOME/.amazon-q.log\"; exec bash"
+        tmux new-session -s amazon-q -c ${var.folder} "q chat --trust-all-tools --model claude-3.7-sonnet | tee -a \"$HOME/.amazon-q.log\"; exec bash"
       fi
     elif [ "${var.experiment_use_screen}" = "true" ]; then
       if screen -list | grep -q "amazon-q"; then
@@ -288,7 +288,7 @@ resource "coder_app" "amazon_q" {
         screen -xRR amazon-q
       else
         echo "Starting a new Amazon Q screen session." | tee -a "$HOME/.amazon-q.log"
-        screen -S amazon-q bash -c 'q chat --trust-all-tools | tee -a "$HOME/.amazon-q.log"; exec bash'
+        screen -S amazon-q bash -c 'q chat --trust-all-tools --model claude-3.7-sonnet | tee -a "$HOME/.amazon-q.log"; exec bash'
       fi
     else
       cd ${var.folder}
