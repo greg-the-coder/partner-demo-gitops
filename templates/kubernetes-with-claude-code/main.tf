@@ -140,6 +140,9 @@ locals {
         When reporting URLs to Coder, do not use localhost. Instead, run `env | grep CODER`, and use a URL like https://preview--dev--CODER_WORKSPACE_NAME--CODER_WORKSPACE_OWNER.demo.coder.com/ but replace it with the proper env vars. That proxies port 3000.
     EOT
     pre_install_script = <<-EOT
+        sudo apt update
+        sudo apt install -y npm tmux
+
         git clone https://github.com/bcdr-demos/contract-tracker-demo project
         tmux new-session -d -s dev-server -c $HOME/project "npm install && npm run dev"
         npm config set prefix=~
