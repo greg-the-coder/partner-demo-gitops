@@ -199,7 +199,7 @@ resource "coder_script" "amazon_q" {
       export LC_ALL=en_US.UTF-8
       
       # Create a new tmux session in detached mode
-      tmux new-session -d -s amazon-q -c "${var.folder}" "q chat --trust-all-tools | tee -a "$HOME/.amazon-q.log" && exec bash"
+      tmux new-session -d -s amazon-q -c "${var.folder}" "q chat --trust-all-tools --model claude-3.7-sonnet | tee -a "$HOME/.amazon-q.log" && exec bash"
       
       # Send the prompt to the tmux session if needed
       if [ -n "$FULL_PROMPT" ]; then
