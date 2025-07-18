@@ -230,7 +230,6 @@ locals {
 
         When reporting URLs to Coder, report to "https://preview--dev--${data.coder_workspace.me.name}--${data.coder_workspace_owner.me.name}.${local.domain}/" that proxies port ${local.port}
     EOT
-    logged_into_git = data.coder_external_auth.github.access_token != ""
     env = {
         CODER_AGENT_TOKEN = coder_agent.dev.token
         CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
@@ -242,7 +241,7 @@ locals {
         DISABLE_PROMPT_CACHING = "1"
         GIT_AUTHOR_NAME = data.coder_workspace_owner.me.name
         GIT_AUTHOR_EMAIL = data.coder_workspace_owner.me.email
-        GH_TOKEN = local.logged_into_git ? data.coder_external_auth.github.access_token : var.gh_token
+        GH_TOKEN = ""
         NODE_OPTIONS = "--max-old-space-size=256"
     }
 }
