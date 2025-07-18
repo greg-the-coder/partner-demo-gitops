@@ -85,69 +85,32 @@ data "coder_parameter" "home_disk_size" {
   }
 }
 
-data "coder_parameter" "git-repo" {
-    name         = "git-repo"
-    display_name = "Git Repository"
-    description  = "Clone a Git repo over HTTPS (if public) or SSH (if private)."
-    mutable      = false
-    default      = ""
+variable "gh_token" {
+    type = string
+    sensitive = true
+}
+
+variable "gh_username" {
+    type = string
+    sensitive = true
+}
+
+data "coder_parameter" "ai_prompt" {
+    type        = "string"
+    name        = "AI Prompt"
+    icon        = "/emojis/1f4ac.png"
+    description = "Write a task prompt for Claude. This will be the first action it will attempt to finish."
+    default = "Do nothing but report a 'task completed' update to Coder"
+    mutable     = false
+}
+
+data "coder_external_auth" "github" {
+    id = "primary-github"
+    optional = true
 }
 
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
-
-locals {
-    cost = 1
-    region = "us-east-2"
-    home_folder = data.coder_parameter.git-repo.value == "" ? "/home/coder" : join("/", [
-        "/home/coder", element(split(".", element(split("/", data.coder_parameter.git-repo.value), -1)), 0)
-    ])
-    task_prompt = join(" ", [
-        "1. Post a 'task started' update to Coder.",
-        "2. A Next.js app is already in the repo, with a tmux session named dev-server running npm run dev. Do not try to run another dev server unless you need to.",
-        "3. If the user asks for a brand-new site in step 6 (instead of editing the current contract site), kill dev-server and build a static site for speed.",
-        "4. Else leave dev-server running—do not re-run npm run dev.",
-        "5. Finally, review all of your memory."
-    ])
-    system_prompt = <<-EOT
-        You have a Next.js application in your directory and there is a tmux session called `dev-server` that is running the application already.
-        
-        - Always use port 3000 so the user has a consistent preview to see their work. Users cannot preview other ports
-        - If the dev server is already running but broken, kill the dev server to run on port 3000.
-        - Avoid building the project for production. Just use dev servers (and ALWAYS VIA desktop-commander as mentioned below)
-        - When you think you have finished, you should use Playwright to review the HTML to ensure it is working as expected.
-        - Feel free to fix anything bad you see.
-
-        Always run long-running commands (e.g. `pnpm dev` or `npm run dev`) using desktop-commander so it runs it in the background and users can prompt you. Other short-lived commands (build, test, cd, write, read, view, etc) can run normally. 
-        Never run the dev server without desktop-commander. This will cause you to stall and get stuck.
-        For previewing, always use the dev server for fast feedback loops (never do a full Next.js build, for exmaple). Next.js or simple HTML/static is preferred for web applications, but pick the best framework for the job.
-        
-        The dev server will be on localhost:3000 and NEVER start on another port. The user depends on localhost:3000. If the dev server crashes for some reason, kill port 3000 (or the desktop-commander session) and restart it.
-        
-        After large changes, use Playwright to ensure your changes work (preview localhost:3000). Take a screenshot, look at the screenshot. Also look at the HTML output from Playwright. If there are errors or something looks "off," fix it.
-        Whenever waiting for a PR review, keep on retrying indefinitely until you get a review. Even if requests are timing out.
-        Aim to autonomously investigate and solve issues the user gives you and test your work, whenever possible.
-        Avoid shortcuts like mocking tests. When you get stuck, you can ask the user but opt for autonomy.
-        
-        In your task reports to Coder:
-        - Be specific about what you're doing
-        - Clearly indicate what information you need from the user when in "failure" state
-        - Keep it under 160 characters
-        - Make it actionable
-
-        If you're being tasked to create a Coder template, then you must ALWAYS ask the user for permission to push it. You are NOT allowed to push templates or create workspaces from them without the users explicit approval.
-
-        When reporting URLs to Coder, do not use localhost. Instead, run `env | grep CODER`, and use a URL like https://preview--dev--CODER_WORKSPACE_NAME--CODER_WORKSPACE_OWNER.demo.coder.com/ but replace it with the proper env vars. That proxies port 3000.
-    EOT
-    pre_install_script = <<-EOT
-        sudo apt update
-        sudo apt install -y npm tmux lsof
-
-        git clone https://github.com/bcdr-demos/contract-tracker-demo project
-        tmux new-session -d -s dev-server -c $HOME/project "npm install && npm run dev"
-        npm config set prefix=~
-    EOT
-}
 
 resource "coder_agent" "dev" {
     arch = "amd64"
@@ -201,18 +164,26 @@ module "cursor" {
     order = 1
 }
 
-module "claude-code" {
-    source = "git::https://github.com/coder/registry.git//registry/coder/modules/claude-code?ref=claude-code-web"
 
+module "claude-code" {
+    count               = data.coder_workspace.me.start_count
+    source              = "registry.coder.com/coder/claude-code/coder"
+    version             = "2.0.0"
     agent_id            = coder_agent.dev.id
     folder              = local.home_folder
-    install_claude_code = true
 
-    experiment_pre_install_script = local.pre_install_script
-    experiment_use_screen = false
-    experiment_use_tmux = true
+    install_claude_code = true
+    order               = 999
+
     experiment_report_tasks = true
-    order = 2
+    experiment_pre_install_script = <<-EOF
+        # If user doesn't have a Github account or aren't 
+        # part of the coder-contrib organization, then they can use the `coder-contrib-bot` account.
+        if [ ! -z "$GH_USERNAME" ]; then
+            unset -v GIT_ASKPASS
+            unset -v GIT_SSH_COMMAND
+        fi
+    EOF
 }
 
 resource "coder_app" "preview" {
@@ -229,6 +200,64 @@ resource "coder_app" "preview" {
         url       = "http://localhost:3000/"
         interval  = 5
         threshold = 15
+    }
+}
+
+locals {
+    task_prompt = join(" ", [
+        "First, post a 'task started' update to Coder.",
+        "Then, review all of your memory.",
+        "Finally, ${data.coder_parameter.ai_prompt.value}.",
+    ])
+    system_prompt = <<-EOT
+        Hey! First, report an initial task to Coder to show you have started! The user has provided you with a prompt of something to create. Create it the best you can, and keep it as succinct as possible.
+        
+        If you're being tasked to create a web application, then:
+        - ALWAYS start the server using `python3` or `node` on localhost:${local.port}.
+        - BEFORE starting the server, ALWAYS attempt to kill ANY process using port ${local.port}, and then run the dev server on port ${local.port}.
+        - ALWAYS build the project using dev servers (and ALWAYS VIA desktop-commander)
+        - When finished, you should use Playwright to review the HTML to ensure it is working as expected.
+
+        ALWAYS run long-running commands (e.g. `pnpm dev` or `npm run dev`) using desktop-commander so it runs it in the background and users can prompt you.  Other short-lived commands (build, test, cd, write, read, view, etc) can run normally.
+
+        NEVER run the dev server without desktop-commander.
+
+        For previewing, always use the dev server for fast feedback loops (never do a full Next.js build, for exmaple). A simple HTML/static is preferred for web applications, but pick the best AND lightest framework for the job.
+        
+        The dev server will ALWAYS be on localhost:${local.port} and NEVER start on another port. If the dev server crashes for some reason, kill port ${local.port} (or the desktop-commander session) and restart the dev server.
+
+        After large changes, use Playwright to ensure your changes work (preview localhost:${local.port}). Take a screenshot, look at the screenshot. Also look at the HTML output from Playwright. If there are errors or something looks "off," fix it.
+        
+        Aim to autonomously investigate and solve issues the user gives you and test your work, whenever possible.
+        
+        Avoid shortcuts like mocking tests. When you get stuck, you can ask the user but opt for autonomy.
+        
+        In your task reports to Coder:
+        - Be specific about what you're doing
+        - Clearly indicate what information you need from the user when in "failure" state
+        - Keep it under 160 characters
+        - Make it actionable
+
+        If you're being tasked to create a Coder template, then,
+        - You must ALWAYS ask the user for permission to push it. 
+        - You are NOT allowed to push templates OR create workspaces from them without the users explicit approval.
+
+        When reporting URLs to Coder, report to "https://preview--dev--${data.coder_workspace.me.name}--${data.coder_workspace_owner.me.name}.${local.domain}/" that proxies port ${local.port}
+    EOT
+    logged_into_git = data.coder_external_auth.github.access_token != ""
+    env = {
+        CODER_AGENT_TOKEN = coder_agent.dev.token
+        CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
+        CODER_MCP_CLAUDE_SYSTEM_PROMPT      = local.system_prompt
+        CODER_MCP_APP_STATUS_SLUG           = "claude-code"
+        ANTHROPIC_BASE_URL = "https://litellm.ai.demo.coder.com"
+        ANTHROPIC_MODEL = "anthropic.claude.sonnet"
+        ANTHROPIC_SMALL_FAST_MODEL = "anthropic.claude.haiku"
+        DISABLE_PROMPT_CACHING = "1"
+        GIT_AUTHOR_NAME = data.coder_workspace_owner.me.name
+        GIT_AUTHOR_EMAIL = data.coder_workspace_owner.me.email
+        GH_TOKEN = local.logged_into_git ? data.coder_external_auth.github.access_token : var.gh_token
+        NODE_OPTIONS = "--max-old-space-size=256"
     }
 }
 
