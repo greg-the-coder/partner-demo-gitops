@@ -85,16 +85,6 @@ data "coder_parameter" "home_disk_size" {
   }
 }
 
-variable "gh_token" {
-    type = string
-    sensitive = true
-}
-
-variable "gh_username" {
-    type = string
-    sensitive = true
-}
-
 data "coder_parameter" "ai_prompt" {
     type        = "string"
     name        = "AI Prompt"
@@ -102,11 +92,6 @@ data "coder_parameter" "ai_prompt" {
     description = "Write a task prompt for Claude. This will be the first action it will attempt to finish."
     default = "Do nothing but report a 'task completed' update to Coder"
     mutable     = false
-}
-
-data "coder_external_auth" "github" {
-    id = "primary-github"
-    optional = true
 }
 
 data "coder_workspace" "me" {}
