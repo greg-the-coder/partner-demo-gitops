@@ -122,15 +122,6 @@ module "coder-login" {
     agent_id = coder_agent.dev.id
 }
 
-module "git-clone" {
-    count = data.coder_parameter.git-repo.value == "" ? 0 : 1
-    source   = "registry.coder.com/coder/git-clone/coder"
-    version  = "1.0.18"
-    agent_id = coder_agent.dev.id
-    url      = data.coder_parameter.git-repo.value
-    base_dir = local.home_folder
-}
-
 module "vscode-web" {
     source         = "registry.coder.com/coder/vscode-web/coder"
     version        = "1.2.0"
@@ -185,6 +176,12 @@ resource "coder_app" "preview" {
         interval  = 5
         threshold = 15
     }
+}
+
+locals {
+    cost = 2
+    region = "us-east-2"
+    home_folder = "/home/coder"
 }
 
 locals {
