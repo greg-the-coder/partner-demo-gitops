@@ -188,6 +188,11 @@ resource "coder_app" "preview" {
 }
 
 locals {
+    port = 3000
+    domain = element(split("/", data.coder_workspace.me.access_url), -1)
+}
+
+locals {
     task_prompt = join(" ", [
         "First, post a 'task started' update to Coder.",
         "Then, review all of your memory.",
