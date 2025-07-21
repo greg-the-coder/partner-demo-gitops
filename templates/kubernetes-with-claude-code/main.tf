@@ -227,14 +227,13 @@ locals {
         CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
         CODER_MCP_CLAUDE_SYSTEM_PROMPT      = local.system_prompt
         CODER_MCP_APP_STATUS_SLUG           = "claude-code"
-#       ANTHROPIC_BASE_URL = "https://litellm.ai.demo.coder.com"
+        ANTHROPIC_BASE_URL = "https://litellm.ai.demo.coder.com"
         ANTHROPIC_MODEL = "anthropic.claude.sonnet"
         ANTHROPIC_SMALL_FAST_MODEL = "anthropic.claude.haiku"
         DISABLE_PROMPT_CACHING = "1"
         GIT_AUTHOR_NAME = data.coder_workspace_owner.me.name
         GIT_AUTHOR_EMAIL = data.coder_workspace_owner.me.email
         GH_TOKEN = ""
-        NODE_OPTIONS = "--max-old-space-size=256"
     }
 }
 
