@@ -118,7 +118,6 @@ resource "coderd_template" "kubernetes-with-amazon-q" {
   }
 }
 
-
 resource "coderd_template" "kubernetes-with-claude-code" {
   name        = "kubernetes-base-claudecode"
   display_name = "Kubernetes with Claude Code"
@@ -153,6 +152,30 @@ resource "coderd_template" "aws-devcontainer" {
     active    = true
     # Version name is optional
     name = var.coder_gitsha
+  }]
+  acl = {
+    users = [{
+      id   = coderd_user.coderGitOps.id
+      role = "admin"
+    }]
+    groups = []
+  }
+}
+
+resource "coderd_template" "kubernetes-awsrag-with-claude-code" {
+  name        = "kubernetes-awsrag-claudecode"
+  display_name = "Kubernetes AWS RAG Prototyping with Claude Code"
+  description = "Provision Kubernetes Deployments as Coder workspaces with Anthropic Claude Code for AWS RAG prototyping."
+  icon = "/icon/k8s.png"
+  versions = [{
+    directory = "./kubernetes-awsrag-with-claude-code"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+    tf_vars = [{
+      name  = "namespace"
+      value = "coder"
+    }]
   }]
   acl = {
     users = [{
