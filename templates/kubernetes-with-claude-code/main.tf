@@ -100,6 +100,14 @@ resource "coder_agent" "dev" {
     arch = "amd64"
     os = "linux"
     dir = local.home_folder
+    env = {
+        CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
+        CODER_MCP_CLAUDE_SYSTEM_PROMPT      = local.system_prompt
+        CLAUDE_CODE_USE_BEDROCK = "1",
+        ANTHROPIC_MODEL = "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+        ANTHROPIC_SMALL_FAST_MODEL = "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+        CODER_MCP_APP_STATUS_SLUG = "claude-code"
+    }
     display_apps {
         vscode          = false
         vscode_insiders = false
