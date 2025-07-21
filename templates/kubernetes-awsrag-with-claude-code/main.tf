@@ -384,6 +384,10 @@ resource "kubernetes_deployment" "dev" {
   }
 }
 
+module "aurora-pgvector" {
+  source = "./aws-aurora"
+}
+
 resource "coder_metadata" "pod_info" {
     count = data.coder_workspace.me.start_count
     resource_id = kubernetes_deployment.dev[0].id
