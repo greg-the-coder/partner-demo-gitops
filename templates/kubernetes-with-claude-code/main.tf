@@ -227,7 +227,7 @@ locals {
         CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
         CODER_MCP_CLAUDE_SYSTEM_PROMPT      = local.system_prompt
         CODER_MCP_APP_STATUS_SLUG           = "claude-code"
-        ANTHROPIC_BASE_URL = "https://litellm.ai.demo.coder.com"
+#       ANTHROPIC_BASE_URL = "https://litellm.ai.demo.coder.com"
         ANTHROPIC_MODEL = "anthropic.claude.sonnet"
         ANTHROPIC_SMALL_FAST_MODEL = "anthropic.claude.haiku"
         DISABLE_PROMPT_CACHING = "1"
