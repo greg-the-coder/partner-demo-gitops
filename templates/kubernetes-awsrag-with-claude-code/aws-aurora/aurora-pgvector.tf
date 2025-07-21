@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "us-west-2"  # Override the region here
+}
+
 # Create a shared VPC for multiple Aurora instances
 resource "aws_vpc" "gtc_awsrag_shared_vpc" {
   cidr_block           = "10.0.0.0/16"
