@@ -58,7 +58,7 @@ resource "aws_security_group" "gtc_awsrag_aurora_sg" {
 
 # First Aurora PostgreSQL Serverless v2 instance
 resource "aws_rds_cluster" "gtc_awsrag_aurora_postgres_1" {
-  cluster_identifier      = "gtc_awsrag_aurora-postgres_1"
+  cluster_identifier      = "gtc_awsrag_aurora_postgres_1"
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
   engine_version          = "13.9"
