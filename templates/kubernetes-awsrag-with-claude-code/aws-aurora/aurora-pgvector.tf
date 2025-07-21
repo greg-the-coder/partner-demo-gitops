@@ -18,7 +18,7 @@ resource "aws_subnet" "gtc_awsrag_private_subnets" {
   count             = 3
   vpc_id            = aws_vpc.gtc_awsrag_shared_vpc.id
   cidr_block        = "10.0.${count.index + 1}.0/24"
-  availability_zone = "us-east-1${["a", "b", "c"][count.index]}"
+  availability_zone = "us-west-2${["a", "b", "c"][count.index]}"
 
   tags = {
     Name = "gtc_awsrag_private-subnet-${count.index + 1}"
