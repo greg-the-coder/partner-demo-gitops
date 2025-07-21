@@ -24,7 +24,7 @@ resource "aws_subnet" "gtc_awsrag_private_subnets" {
 # Create a subnet group for Aurora instances
 resource "aws_db_subnet_group" "gtc_awsrag_aurora_subnet_group" {
   name       = "gtc_awsrag_aurora-subnet-group"
-  subnet_ids = aws_subnet.private_subnets[*].id
+  subnet_ids = aws_subnet.gtc_awsrag_private_subnets[*].id
 
   tags = {
     Name = "gtc_awsrag Aurora Subnet Group"
