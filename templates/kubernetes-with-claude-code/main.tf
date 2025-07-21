@@ -230,19 +230,6 @@ locals {
 
         When reporting URLs to Coder, report to "https://preview--dev--${data.coder_workspace.me.name}--${data.coder_workspace_owner.me.name}.${local.domain}/" that proxies port ${local.port}
     EOT
-    env = {
-        CODER_AGENT_TOKEN = coder_agent.dev.token
-        CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
-        CODER_MCP_CLAUDE_SYSTEM_PROMPT      = local.system_prompt
-        CODER_MCP_APP_STATUS_SLUG           = "claude-code"
-        ANTHROPIC_BASE_URL = "https://litellm.ai.demo.coder.com"
-        ANTHROPIC_MODEL = "anthropic.claude.sonnet"
-        ANTHROPIC_SMALL_FAST_MODEL = "anthropic.claude.haiku"
-        DISABLE_PROMPT_CACHING = "1"
-        GIT_AUTHOR_NAME = data.coder_workspace_owner.me.name
-        GIT_AUTHOR_EMAIL = data.coder_workspace_owner.me.email
-        GH_TOKEN = ""
-    }
 }
 
 resource "kubernetes_persistent_volume_claim" "home" {
