@@ -1,34 +1,31 @@
-provider "aws" {
-  region = "us-west-2"  # Override the region here
+# Variables for existing VPC and subnets
+variable "vpc_id" {
+  description = "ID of the existing VPC where Aurora will be deployed"
+  type        = string
+  default     = "vpc-0871232cd21251540"  # Replace with your actual VPC ID
 }
 
-# Create a shared VPC for multiple Aurora instances
-resource "aws_vpc" "gtc_awsrag_shared_vpc" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-
-  tags = {
-    Name = "gtc_awsrag_shared_vpc"
-  }
+variable "subnet_ids" {
+  description = "List of subnet IDs where Aurora will be deployed"
+  type        = list(string)
+  default     = ["subnet-0f0535010fd77a0c3", "subnet-00cbe04ad50f37808", "subnet-0bdc79d34b7380f1b"]  # Replace with your actual subnet IDs
 }
 
-# Create subnets across multiple availability zones
-resource "aws_subnet" "gtc_awsrag_private_subnets" {
-  count             = 3
-  vpc_id            = aws_vpc.gtc_awsrag_shared_vpc.id
-  cidr_block        = "10.0.${count.index + 1}.0/24"
-  availability_zone = "us-west-2${["a", "b", "c"][count.index]}"
-
-  tags = {
-    Name = "gtc_awsrag_private-subnet-${count.index + 1}"
-  }
+# Reference existing VPC
+data "aws_vpc" "existing_vpc" {
+  id = var.vpc_id
 }
 
-# Create a subnet group for Aurora instances
+# Reference existing private subnets
+data "aws_subnet" "existing_private_subnets" {
+  count = length(var.subnet_ids)
+  id    = var.subnet_ids[count.index]
+}
+
+# Create a subnet group for Aurora instances using existing subnets
 resource "aws_db_subnet_group" "gtc_awsrag_aurora_subnet_group" {
   name       = "gtc_awsrag_aurora-subnet-group"
-  subnet_ids = aws_subnet.gtc_awsrag_private_subnets[*].id
+  subnet_ids = data.aws_subnet.existing_private_subnets[*].id
 
   tags = {
     Name = "gtc_awsrag Aurora Subnet Group"
@@ -39,7 +36,7 @@ resource "aws_db_subnet_group" "gtc_awsrag_aurora_subnet_group" {
 resource "aws_security_group" "gtc_awsrag_aurora_sg" {
   name        = "gtc_awsrag_aurora-security-group"
   description = "Security group for Aurora PostgreSQL instances"
-  vpc_id      = aws_vpc.gtc_awsrag_shared_vpc.id
+  vpc_id      = data.aws_vpc.existing_vpc.id
 
   ingress {
     from_port   = 5432
