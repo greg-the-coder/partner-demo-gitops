@@ -45,7 +45,7 @@ resource "aws_security_group" "gtc_awsrag_aurora_sg" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]  # Allow access from within the VPC
+    cidr_blocks = ["0.0.0.0/0"]  # Allow public access not restricted to the VPC
   }
 
   egress {
