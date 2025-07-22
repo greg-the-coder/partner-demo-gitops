@@ -68,7 +68,6 @@ resource "aws_rds_cluster" "gtc_awsrag_aurora_postgres_1" {
   master_password         = "YourStrongPasswordHere1"  # Use AWS Secrets Manager in production
   db_subnet_group_name    = aws_db_subnet_group.gtc_awsrag_aurora_subnet_group.name
   vpc_security_group_ids  = [aws_security_group.gtc_awsrag_aurora_sg.id]
-  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.pgvector_param_group.name
   skip_final_snapshot     = true
   
   serverlessv2_scaling_configuration {
