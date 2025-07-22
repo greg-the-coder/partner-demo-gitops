@@ -79,7 +79,21 @@ resource "aws_rds_cluster" "gtc_awsrag_aurora_postgres_1" {
   }
 }
 
+# Primary DB instance for the Aurora PostgreSQL cluster
+resource "aws_rds_cluster_instance" "gtc_awsrag_aurora_primary" {
+  cluster_identifier   = aws_rds_cluster.gtc_awsrag_aurora_postgres_1.id
+  instance_class       = "db.serverless"
+  engine               = "aurora-postgresql"
+  engine_version       = "13.9"
+  db_subnet_group_name = aws_db_subnet_group.gtc_awsrag_aurora_subnet_group.name
+  identifier           = "gtc-awsrag-aurora-primary"
+}
+
 # Outputs
 output "aurora_postgres_1_endpoint" {
   value = aws_rds_cluster.gtc_awsrag_aurora_postgres_1.endpoint
+}
+
+output "aurora_postgres_1_reader_endpoint" {
+  value = aws_rds_cluster.gtc_awsrag_aurora_postgres_1.reader_endpoint
 }
