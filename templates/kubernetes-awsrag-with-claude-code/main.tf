@@ -138,6 +138,9 @@ resource "coder_agent" "dev" {
       echo "AWS CDK is already installed"
       cdk --version
     fi
+   
+    # Enable Vector extension on Aurora PostgreSQL instance
+    PGPASSWORD="YourStrongPasswordHere1" psql -h ${aws_rds_cluster.gtc_awsrag_aurora_postgres_1.endpoint} -U dbadmin -d mydb1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
   EOT
 

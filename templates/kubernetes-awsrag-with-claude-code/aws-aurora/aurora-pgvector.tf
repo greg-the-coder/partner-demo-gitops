@@ -86,17 +86,6 @@ resource "aws_rds_cluster_instance" "gtc_awsrag_aurora_primary" {
   identifier           = "gtc-awsrag-aurora-primary"
 }
 
-# Null resource to create pgvector extension after cluster creation
-resource "null_resource" "create_pgvector_extension" {
-  depends_on = [aws_rds_cluster_instance.gtc_awsrag_aurora_primary]
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      PGPASSWORD="YourStrongPasswordHere1" psql -h ${aws_rds_cluster.gtc_awsrag_aurora_postgres_1.endpoint} -U dbadmin -d mydb1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
-    EOT
-  }
-}
-
 # Outputs
 output "aurora_postgres_1_endpoint" {
   value = aws_rds_cluster.gtc_awsrag_aurora_postgres_1.endpoint
