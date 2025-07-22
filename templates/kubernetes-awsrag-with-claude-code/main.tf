@@ -140,7 +140,7 @@ resource "coder_agent" "dev" {
     fi
    
     # Enable Vector extension on Aurora PostgreSQL instance
-    PGPASSWORD="YourStrongPasswordHere1" psql -h ${aws_rds_cluster.gtc_awsrag_aurora_postgres_1.endpoint} -U dbadmin -d mydb1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
+    PGPASSWORD="YourStrongPasswordHere1" psql -h ${module.aurora-pgvector.aurora_postgres_1_endpoint} -U dbadmin -d mydb1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
   EOT
 
