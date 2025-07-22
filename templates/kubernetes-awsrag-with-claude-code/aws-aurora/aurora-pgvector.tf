@@ -65,7 +65,7 @@ resource "aws_rds_cluster_parameter_group" "pgvector_param_group" {
 
   parameter {
     name  = "shared_preload_libraries"
-    value = "pg_stat_statements,pgvector"
+    value = "pg_stat_statements,vector"
     apply_method = "pending-reboot"
   }
 }
