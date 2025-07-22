@@ -57,17 +57,31 @@ resource "aws_security_group" "gtc_awsrag_aurora_sg" {
   }
 }
 
+# Parameter group to enable pgvector extension
+resource "aws_rds_cluster_parameter_group" "pgvector_param_group" {
+  name        = "pgvector-param-group"
+  family      = "aurora-postgresql16"
+  description = "Parameter group for pgvector extension"
+
+  parameter {
+    name  = "shared_preload_libraries"
+    value = "pg_stat_statements,pgvector"
+    apply_method = "pending-reboot"
+  }
+}
+
 # First Aurora PostgreSQL Serverless v2 instance
 resource "aws_rds_cluster" "gtc_awsrag_aurora_postgres_1" {
   cluster_identifier      = "gtc-awsrag-aurora-postgres-1"
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
-  engine_version          = "13.9"
+  engine_version          = "16.6"
   database_name           = "mydb1"
   master_username         = "dbadmin"
   master_password         = "YourStrongPasswordHere1"  # Use AWS Secrets Manager in production
   db_subnet_group_name    = aws_db_subnet_group.gtc_awsrag_aurora_subnet_group.name
   vpc_security_group_ids  = [aws_security_group.gtc_awsrag_aurora_sg.id]
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.pgvector_param_group.name
   skip_final_snapshot     = true
   
   serverlessv2_scaling_configuration {
@@ -81,9 +95,20 @@ resource "aws_rds_cluster_instance" "gtc_awsrag_aurora_primary" {
   cluster_identifier   = aws_rds_cluster.gtc_awsrag_aurora_postgres_1.id
   instance_class       = "db.serverless"
   engine               = "aurora-postgresql"
-  engine_version       = "13.9"
+  engine_version       = "16.6"
   db_subnet_group_name = aws_db_subnet_group.gtc_awsrag_aurora_subnet_group.name
   identifier           = "gtc-awsrag-aurora-primary"
+}
+
+# Null resource to create pgvector extension after cluster creation
+resource "null_resource" "create_pgvector_extension" {
+  depends_on = [aws_rds_cluster_instance.gtc_awsrag_aurora_primary]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      PGPASSWORD="YourStrongPasswordHere1" psql -h ${aws_rds_cluster.gtc_awsrag_aurora_postgres_1.endpoint} -U dbadmin -d mydb1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
+    EOT
+  }
 }
 
 # Outputs
