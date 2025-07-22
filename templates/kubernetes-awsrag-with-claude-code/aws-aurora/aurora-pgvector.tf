@@ -57,19 +57,6 @@ resource "aws_security_group" "gtc_awsrag_aurora_sg" {
   }
 }
 
-# Parameter group to enable pgvector extension
-resource "aws_rds_cluster_parameter_group" "pgvector_param_group" {
-  name        = "pgvector-param-group"
-  family      = "aurora-postgresql16"
-  description = "Parameter group for pgvector extension"
-
-  parameter {
-    name  = "shared_preload_libraries"
-    value = "pg_stat_statements,vector"
-    apply_method = "pending-reboot"
-  }
-}
-
 # First Aurora PostgreSQL Serverless v2 instance
 resource "aws_rds_cluster" "gtc_awsrag_aurora_postgres_1" {
   cluster_identifier      = "gtc-awsrag-aurora-postgres-1"
