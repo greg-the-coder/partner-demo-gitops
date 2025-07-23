@@ -210,13 +210,13 @@ resource "coder_app" "preview" {
     slug         = "preview"
     display_name = "Preview your app"
     icon         = "${data.coder_workspace.me.access_url}/emojis/1f50e.png"
-    url          = "http://localhost:3000"
+    url          = "http://localhost:8501"
     share        = "authenticated"
     subdomain    = true
     open_in      = "tab"
     order = 3
     healthcheck {
-        url       = "http://localhost:3000/"
+        url       = "http://localhost:8501/"
         interval  = 5
         threshold = 15
     }
@@ -229,7 +229,7 @@ locals {
 }
 
 locals {
-    port = 3000
+    port = 8501
     domain = element(split("/", data.coder_workspace.me.access_url), -1)
 }
 
