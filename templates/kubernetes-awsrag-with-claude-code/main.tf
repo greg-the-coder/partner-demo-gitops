@@ -88,8 +88,8 @@ data "coder_parameter" "ai_prompt" {
     type        = "string"
     name        = "AI Prompt"
     icon        = "/emojis/1f4ac.png"
-    description = "Write a task prompt for Claude. This will be the first action it will attempt to finish."
-    default = "Do nothing but report a 'task completed' update to Coder"
+    description = "Create a task prompt for Claude Code"
+    default = "Look for an AWS RAG Prototyping repo in the Coder Workspace.  If found, create a new Python3 virtual environment, pip install the requirements.txt and then start the app via streamlit."
     mutable     = false
 }
 
@@ -194,7 +194,7 @@ module "code-server" {
   version  = "1.0.18"
   agent_id = coder_agent.dev.id
   order    = 1
-  folder   = "/home/${data.coder_workspace.me.id}/${module.git_clone[count.index].folder_name}"
+  folder   = "/home/coder"
 }
 
 module "claude-code" {

@@ -10,6 +10,23 @@ variable "subnet_ids" {
   type        = list(string)
   default     = ["subnet-0f0535010fd77a0c3", "subnet-00cbe04ad50f37808", "subnet-0bdc79d34b7380f1b"]  # Replace with your actual subnet IDs
 }
+#Variables for Aurora PostgreSQL Serverless v2
+
+variable "database_name" {
+  description = "Name of the database to be created"
+  type        = string
+  default     = "mydb"
+}
+variable "db_master_username" {
+  description = "Master username for the database"
+  type        = string
+  default     = "dbadmin"
+}
+variable "db_master_password" {
+  description = "Master password for the database"
+  type        = string
+  default     = "YourStrongPasswordHere1"  # Consider using AWS Secrets Manager for production
+}
 
 # Reference existing VPC
 data "aws_vpc" "existing_vpc" {
