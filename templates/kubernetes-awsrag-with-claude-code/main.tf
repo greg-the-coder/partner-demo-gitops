@@ -194,7 +194,7 @@ module "code-server" {
   version  = "1.0.18"
   agent_id = coder_agent.dev.id
   order    = 1
-  folder   = "/home/${local.username}/${module.git_clone[count.index].folder_name}"
+  folder   = "/home/${data.coder_workspace.me.id}/${module.git_clone[count.index].folder_name}"
 }
 
 module "claude-code" {
