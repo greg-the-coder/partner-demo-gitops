@@ -153,7 +153,7 @@ resource "coder_agent" "dev" {
         CODER_MCP_APP_STATUS_SLUG = "claude-code"
         PGVECTOR_USER = "dbadmin"
         PGVECTOR_PASSWORD = "YourStrongPasswordHere1"
-        PGVECTOR_HOST = ${module.aurora-pgvector.aurora_postgres_1_endpoint}
+        PGVECTOR_HOST = module.aurora-pgvector.aurora_postgres_1_endpoint
         PGVECTOR_PORT = "5432"
         PGVECTOR_DATABASE = "mydb1"
     }
