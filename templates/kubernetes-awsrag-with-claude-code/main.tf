@@ -147,10 +147,15 @@ resource "coder_agent" "dev" {
     env = {
         CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
         CODER_MCP_CLAUDE_SYSTEM_PROMPT      = local.system_prompt
-        CLAUDE_CODE_USE_BEDROCK = "1",
-        ANTHROPIC_MODEL = "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-        ANTHROPIC_SMALL_FAST_MODEL = "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+        CLAUDE_CODE_USE_BEDROCK = "1"
+        ANTHROPIC_MODEL = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+        ANTHROPIC_SMALL_FAST_MODEL = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
         CODER_MCP_APP_STATUS_SLUG = "claude-code"
+        PGVECTOR_USER = "dbadmin"
+        PGVECTOR_PASSWORD = "YourStrongPasswordHere1"
+        PGVECTOR_HOST = ${module.aurora-pgvector.aurora_postgres_1_endpoint}
+        PGVECTOR_PORT = "5432"
+        PGVECTOR_DATABASE = "mydb1"
     }
     display_apps {
         vscode          = false
@@ -166,23 +171,31 @@ module "coder-login" {
     agent_id = coder_agent.dev.id
 }
 
-module "vscode-web" {
-    source         = "registry.coder.com/coder/vscode-web/coder"
-    version        = "1.2.0"
-    agent_id       = coder_agent.dev.id
-    folder         = local.home_folder
-    accept_license = true
-    subdomain = true
-    order = 0
+# Prompt the user for the git repo URL
+data "coder_parameter" "git_repo" {
+  name         = "git_repo"
+  display_name = "Git repository"
+  default      = "https://github.com/greg-the-coder/aws-rag-prototyping.git"
 }
 
-module "cursor" {
-    source   = "registry.coder.com/coder/cursor/coder"
-    version  = "1.1.0"
-    agent_id = coder_agent.dev.id
-    order = 1
+# Clone the repository 
+module "git_clone" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder/git-clone/coder"
+  version  = "1.1.1"
+  agent_id = coder_agent.dev.id
+  url      = data.coder_parameter.git_repo.value
 }
 
+# Create a code-server instance for the cloned repository
+module "code-server" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder/code-server/coder"
+  version  = "1.0.18"
+  agent_id = coder_agent.dev.id
+  order    = 1
+  folder   = "/home/${local.username}/${module.git_clone[count.index].folder_name}"
+}
 
 module "claude-code" {
     count               = data.coder_workspace.me.start_count
