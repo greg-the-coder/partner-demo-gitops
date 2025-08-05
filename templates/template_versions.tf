@@ -33,9 +33,9 @@ provider "coderd" {
 }
 
 resource "coderd_user" "coderGitOps" {
-  username = "coderGitOps"
-  name     = "Coder GitOps"
-  email    = "GitOps@coder.com"
+  username = "workshopGitOps"
+  name     = "Coder Workshop GitOps"
+  email    = "workshopGitOps@coder.com"
 }
 
 ###########################################################
