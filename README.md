@@ -1,6 +1,6 @@
-# partner-demo-gitops
+# AWS Coder Workshop GitOps
 
-Partner Demo of GitOps flow for Coder Admin
+AWS Workshop Demo of GitOps flow for Coder Template Admin
 
 ## Overview
 A demonstration project showcasing GitOps workflows and best practices for Coder administration. This repo is meant to be used in conjunction with our [Kubernetes Devcontainer template](https://registry.coder.com/templates/kubernetes-devcontainer), which creates a Coder Workspace a Coder Admin can use for deployment and template administration.  The [.devcontainer specification](./.devcontainer/) contained in this repo will deploy a Workspace that has terraform, helm, and kubectl utilities provisioned that are commonly used by Platform Engineering teams supporting Coder. 
