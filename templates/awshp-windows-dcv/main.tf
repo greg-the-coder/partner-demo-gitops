@@ -132,10 +132,6 @@ data "coder_parameter" "instance_type" {
     name  = "4 vCPU, 16 GiB RAM"
     value = "m5dn.xlarge"
   }
-  option {
-    name  = "8 vCPU, 32 GiB RAM"
-    value = "m5dn.2xlarge"
-  }
 }
 
 provider "aws" {

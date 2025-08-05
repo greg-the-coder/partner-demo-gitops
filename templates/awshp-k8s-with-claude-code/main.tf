@@ -35,14 +35,6 @@ data "coder_parameter" "cpu" {
     name  = "4 Cores"
     value = "4"
   }
-  option {
-    name  = "6 Cores"
-    value = "6"
-  }
-  option {
-    name  = "8 Cores"
-    value = "8"
-  }
 }
 
 data "coder_parameter" "memory" {
@@ -59,14 +51,6 @@ data "coder_parameter" "memory" {
   option {
     name  = "4 GB"
     value = "4"
-  }
-  option {
-    name  = "6 GB"
-    value = "6"
-  }
-  option {
-    name  = "8 GB"
-    value = "8"
   }
 }
 

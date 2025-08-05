@@ -100,14 +100,6 @@ data "coder_parameter" "instance_type" {
     name  = "2 vCPU, 8 GiB RAM"
     value = "t3.large"
   }
-  option {
-    name  = "4 vCPU, 16 GiB RAM"
-    value = "t3.xlarge"
-  }
-  option {
-    name  = "8 vCPU, 32 GiB RAM"
-    value = "t3.2xlarge"
-  }
 }
 
 data "coder_parameter" "root_volume_size_gb" {

@@ -59,10 +59,6 @@ data "coder_parameter" "instance_type" {
     name  = "2 vCPU, 8 GiB RAM"
     value = "m7g.large"
   }
-  option {
-    name  = "4 vCPU, 16 GiB RAM"
-    value = "m7g.xlarge"
-  }
 }
 data "coder_parameter" "instance_diskGB" {
   name         = "instance_diskGB"
