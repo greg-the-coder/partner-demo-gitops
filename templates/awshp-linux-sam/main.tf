@@ -11,9 +11,16 @@ terraform {
 provider "aws" {
   region = data.coder_parameter.region.value
 }
+
+variable "aws_iam_profile" {
+  type        = string
+  default     = ""
+  description = "The AWS IAM Role to assign to the Coder EC2 Workspace for access to other AWS Accounts and Services"
+}
+
 #### Update to Workshop IAM Instance Profile
 data "aws_iam_instance_profile" "vm_instance_profile" {
-  name  = "gtc-demo-aws-workshop-access"
+   name  = var.aws_iam_profile
 }
 
 # aws ec2 describe-regions | jq -r '[.Regions[].RegionName] | sort'

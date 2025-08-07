@@ -42,34 +42,6 @@ resource "coderd_user" "coderGitOps" {
 # Maintain Coder Template Resources in this Section
 ###########################################################
 
-resource "coderd_template" "awshp-k8s-with-amazon-q" {
-  name        = "awshp-k8s-with-amazon-q"
-  display_name = "AWS Workshop - Kubernetes with Amazon Q"
-  description = "Provision Kubernetes Deployments as Coder workspaces with Amazon Q."
-  icon = "/icon/k8s.png"
-  versions = [{
-    directory = "./awshp-k8s-with-amazon-q"
-    active    = true
-    # Version name is optional
-    name = var.coder_gitsha
-    tf_vars = [{
-      name  = "namespace"
-      value = "coder"
-    },
-    {
-      name  = "amazon_q_auth_tarball"
-      value = "<Follow Amazon Q module instructions to create"
-    }]
-  }]
-  acl = {
-    users = [{
-      id   = coderd_user.coderGitOps.id
-      role = "admin"
-    }]
-    groups = []
-  }
-}
-
 resource "coderd_template" "awshp-k8s-with-claude-code" {
   name        = "awshp-k8s-base-claudecode"
   display_name = "AWS Workshop - Kubernetes with Claude Code"
