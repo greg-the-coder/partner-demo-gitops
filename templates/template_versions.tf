@@ -100,6 +100,10 @@ resource "coderd_template" "awshp-linux-sam" {
     active    = true
     # Version name is optional
     name = var.coder_gitsha
+    tf_vars = [{
+      name  = "aws_iam_profile"
+      value = "gtc-demo-aws-workshop-access"
+    }]
   }]
   acl = {
     users = [{
