@@ -116,13 +116,12 @@ module "vscode-web" {
     order = 0
 }
 
-module "cursor" {
-    source   = "registry.coder.com/coder/cursor/coder"
-    version  = "1.1.0"
+module "kiro" {
+  source   = "registry.coder.com/coder/kiro/coder"
+  version  = "1.0.0"
     agent_id = coder_agent.dev.id
     order = 1
 }
-
 
 module "claude-code" {
     count               = data.coder_workspace.me.start_count
