@@ -78,7 +78,7 @@ resource "coderd_template" "awshp-linux-q-base" {
     name = var.coder_gitsha
     tf_vars = [{
       name  = "aws_iam_profile"
-      value = "gtc-demo-aws-workshop-access"
+      value = "coder-workshop-ec2-workspace-role"
     }]
   }]
   acl = {
@@ -102,7 +102,7 @@ resource "coderd_template" "awshp-linux-sam" {
     name = var.coder_gitsha
     tf_vars = [{
       name  = "aws_iam_profile"
-      value = "gtc-demo-aws-workshop-access"
+      value = "coder-workshop-ec2-workspace-role"
     }]
   }]
   acl = {
