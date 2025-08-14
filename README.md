@@ -35,8 +35,26 @@ coder login $CODER_AGENT_URL
 ./templates_gitops.sh <Coder Session Token>
 ```
 
+## Workshop Content
+
+### 📚 [AI-Driven Development Workflows](workshop/README.md)
+Converted workshop content from the AWS Modernization with Coder workshop, featuring:
+- AI-powered development with Amazon Q Developer and Claude Code
+- Hands-on exercises for AI-assisted feature development
+- Task automation workflows and best practices
+- Standard Markdown format for easy integration
+
+### 🛠️ [Coder Templates](templates/README.md)
+Four specialized workspace templates for AWS development:
+- **Linux Q Developer**: AI-powered development with Amazon Q Developer CLI
+- **Linux SAM**: Serverless development with AWS SAM CLI on ARM64
+- **Windows DCV**: Windows development with NICE DCV remote desktop
+- **Kubernetes Claude Code**: Container development with AI task automation
+
 ## Features
 - Demonstrates Coder Kubernetes Devcontainer Workspaces for Platform Engineering
-- Implements basic GitOps workflow for Coder Template adminstration using Coder CLI, Terraform, and Git for template change management 
-- Other template source available at the [Coder Template Registry](https://registry.coder.com/templates)
+- Implements basic GitOps workflow for Coder Template administration using Coder CLI, Terraform, and Git for template change management
+- Includes comprehensive workshop content for AI-driven development workflows
+- Provides specialized templates for various AWS development scenarios
+- Other template sources available at the [Coder Template Registry](https://registry.coder.com/templates)
 
