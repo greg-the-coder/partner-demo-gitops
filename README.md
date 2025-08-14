@@ -38,7 +38,7 @@ coder login $CODER_AGENT_URL
 ## Workshop Content
 
 ### 📚 [AI-Driven Development Workflows](workshop/README.md)
-Converted workshop content from the AWS Modernization with Coder workshop, featuring:
+Workshop content from the AWS Modernization with Coder workshop, featuring:
 - AI-powered development with Amazon Q Developer and Claude Code
 - Hands-on exercises for AI-assisted feature development
 - Task automation workflows and best practices
