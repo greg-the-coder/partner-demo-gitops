@@ -1,25 +1,37 @@
 ---
-display_name: AWS EC2 (Linux)
-description: Provision AWS EC2 VMs as Coder workspaces
+display_name: AWS Workshop - EC2 (Linux) Q Developer
+description: Provision AWS EC2 VMs with Amazon Q Developer CLI and AWS development tools as Coder workspaces
 icon: ../../../site/static/icon/aws.svg
 maintainer_github: coder
 verified: true
-tags: [vm, linux, aws, persistent-vm]
+tags: [vm, linux, aws, persistent-vm, q-developer, aws-cli, cdk]
 ---
 
-# Remote Development on AWS EC2 VMs (Linux)
+# Remote Development on AWS EC2 VMs (Linux) with Q Developer
 
-Provision AWS EC2 VMs as [Coder workspaces](https://coder.com/docs/workspaces) with this example template.
+Provision AWS EC2 VMs with integrated Amazon Q Developer CLI, AWS CLI, and AWS CDK as [Coder workspaces](https://coder.com/docs/workspaces) with this workshop template.
 
 ## Prerequisites
 
+### Infrastructure
+
+**AWS Account**: This template requires an AWS account with appropriate permissions for EC2 instance management
+
+**IAM Instance Profile**: This template uses a configurable IAM instance profile for AWS service access
+
 ### Authentication
 
-By default, this template authenticates to AWS using the provider's default [authentication methods](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration).
-
-The simplest way (without making changes to the template) is via environment variables (e.g. `AWS_ACCESS_KEY_ID`) or a [credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-format). If you are running Coder on a VM, this file must be in `/home/coder/aws/credentials`.
+This template authenticates to AWS using the provider's default [authentication methods](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration).
 
 To use another [authentication method](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication), edit the template.
+
+### Amazon Q Developer Integration
+
+This template includes Amazon Q Developer CLI integration that provides:
+- AI-powered code generation and assistance
+- Natural language to code conversion
+- AWS service integration and best practices
+- Interactive development workflows
 
 ## Required permissions / policy
 
@@ -79,15 +91,52 @@ instances provisioned by Coder:
 
 This template provisions the following resources:
 
-- AWS Instance
+- AWS EC2 Instance (Ubuntu 20.04 LTS)
+- IAM instance profile for AWS service access
+- Cloud-init configuration for automated setup
+- Persistent EBS root volume
 
-Coder uses `aws_ec2_instance_state` to start and stop the VM. This example template is fully persistent, meaning the full filesystem is preserved when the workspace restarts. See this [community example](https://github.com/bpmct/coder-templates/tree/main/aws-linux-ephemeral) of an ephemeral AWS instance.
+Coder uses `aws_ec2_instance_state` to start and stop the VM. This template is fully persistent, meaning the full filesystem is preserved when the workspace restarts.
+
+## Features
+
+- **VS Code Web**: Access VS Code through the browser via code-server
+- **Amazon Q Developer CLI**: AI-powered development assistance
+- **AWS CLI**: Pre-installed and configured AWS command line interface
+- **AWS CDK**: Cloud Development Kit with Node.js runtime
+- **Multi-Region Support**: Deploy in various AWS regions
+- **Configurable Resources**: Choose instance type and disk size
+- **Real-time Monitoring**: CPU, memory, and disk usage metrics
+
+## Parameters
+
+- **Region**: AWS region for deployment (10 regions available)
+- **Instance Type**: EC2 instance type (t3.micro to t3.large)
+- **Root Volume Size**: EBS root volume size in GB (minimum 1 GB, expandable)
+- **AWS IAM Profile**: IAM instance profile for AWS service access
 
 > **Note**
 > This template is designed to be a starting point! Edit the Terraform to extend the template to support your use case.
 
-## code-server
+## Development Tools
 
-`code-server` is installed via the `startup_script` argument in the `coder_agent`
-resource block. The `coder_app` resource is defined to access `code-server` through
-the dashboard UI over `localhost:13337`.
+### Code Server
+`code-server` is installed via the Coder registry module and provides VS Code access through the browser.
+
+### Amazon Q Developer CLI
+The Q Developer CLI is automatically installed and provides:
+- Interactive chat sessions for development assistance
+- Code generation and explanation capabilities
+- AWS service integration guidance
+
+### AWS Development Stack
+- **AWS CLI v2**: Latest version with full AWS service support
+- **AWS CDK**: Infrastructure as Code with TypeScript/JavaScript
+- **Node.js 20 LTS**: Runtime for CDK and modern JavaScript development
+
+## Getting Started
+
+1. Create a workspace using this template
+2. Access VS Code through the Coder dashboard
+3. Initialize Q Developer CLI with `q login`
+4. Start developing with AI assistance using `q chat`
