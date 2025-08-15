@@ -42,7 +42,6 @@ Workshop content from the AWS Modernization with Coder workshop, featuring:
 - AI-powered development with Amazon Q Developer and Claude Code
 - Hands-on exercises for AI-assisted feature development
 - Task automation workflows and best practices
-- Standard Markdown format for easy integration
 
 ### 🛠️ [Coder Templates](templates/README.md)
 Four specialized workspace templates for AWS development:
