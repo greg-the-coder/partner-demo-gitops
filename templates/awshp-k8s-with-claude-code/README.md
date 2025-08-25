@@ -46,7 +46,7 @@ This means, when the workspace restarts, any tools or files outside of the home 
 ## Features
 
 - **VS Code Web**: Access VS Code through the browser
-- **Cursor**: AI-powered code editor integration
+- **Kiro**: AI-powered code editor integration
 - **Claude Code**: AI assistant for automated development tasks
 - **Preview App**: Built-in preview server on port 3000
 - **Configurable Resources**: Adjustable CPU, memory, and disk size
