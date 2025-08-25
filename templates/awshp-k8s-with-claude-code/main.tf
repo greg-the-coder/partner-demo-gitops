@@ -112,7 +112,7 @@ module "vscode-web" {
     agent_id       = coder_agent.dev.id
     folder         = local.home_folder
     accept_license = true
-    subdomain = true
+    subdomain = false
     order = 0
 }
 
@@ -151,7 +151,7 @@ resource "coder_app" "preview" {
     icon         = "${data.coder_workspace.me.access_url}/emojis/1f50e.png"
     url          = "http://localhost:3000"
     share        = "authenticated"
-    subdomain    = true
+    subdomain    = false
     open_in      = "tab"
     order = 3
     healthcheck {
