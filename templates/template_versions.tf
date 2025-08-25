@@ -125,11 +125,4 @@ resource "coderd_template" "awshp-windows-dcv" {
     # Version name is optional
     name = var.coder_gitsha
   }]
-  acl = {
-    users = [{
-      id   = coderd_user.coderGitOps.id
-      role = "admin"
-    }]
-    groups = []
-  }
 }
