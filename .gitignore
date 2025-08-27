@@ -2,8 +2,8 @@
 **/.terraform/*
 
 # Save .tfstate files for Coder GitOps Use Case
-*.tfstate
-*.tfstate.*
+# *.tfstate
+# *.tfstate.*
 
 # Crash log files
 crash.log
