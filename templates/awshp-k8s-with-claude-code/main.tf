@@ -126,9 +126,10 @@ module "kiro" {
 module "claude-code" {
     count               = data.coder_workspace.me.start_count
     source              = "registry.coder.com/coder/claude-code/coder"
-    version             = "2.0.0"
+    version             = "2.2.0"
     agent_id            = coder_agent.dev.id
     folder              = local.home_folder
+    subdomain           = false
 
     install_claude_code = true
     order               = 999

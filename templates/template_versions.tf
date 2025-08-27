@@ -32,12 +32,6 @@ provider "coderd" {
     token = "${var.coder_token}"
 }
 
-resource "coderd_user" "coderGitOps" {
-  username = "workshopGitOps"
-  name     = "Coder Workshop GitOps"
-  email    = "workshopGitOps@coder.com"
-}
-
 ###########################################################
 # Maintain Coder Template Resources in this Section
 ###########################################################
@@ -57,13 +51,6 @@ resource "coderd_template" "awshp-k8s-with-claude-code" {
       value = "coder"
     }]
   }]
-  acl = {
-    users = [{
-      id   = coderd_user.coderGitOps.id
-      role = "admin"
-    }]
-    groups = []
-  }
 }
 
 resource "coderd_template" "awshp-linux-q-base" {
@@ -78,16 +65,9 @@ resource "coderd_template" "awshp-linux-q-base" {
     name = var.coder_gitsha
     tf_vars = [{
       name  = "aws_iam_profile"
-      value = "coder-workshop-ec2-workspace-role"
+      value = "coder-workshop-ec2-workspace-profile"
     }]
   }]
-  acl = {
-    users = [{
-      id   = coderd_user.coderGitOps.id
-      role = "admin"
-    }]
-    groups = []
-  }
 }
 
 resource "coderd_template" "awshp-linux-sam" {
@@ -102,16 +82,9 @@ resource "coderd_template" "awshp-linux-sam" {
     name = var.coder_gitsha
     tf_vars = [{
       name  = "aws_iam_profile"
-      value = "coder-workshop-ec2-workspace-role"
+      value = "coder-workshop-ec2-workspace-profile"
     }]
   }]
-  acl = {
-    users = [{
-      id   = coderd_user.coderGitOps.id
-      role = "admin"
-    }]
-    groups = []
-  }
 }
 
 resource "coderd_template" "awshp-windows-dcv" {
@@ -125,11 +98,4 @@ resource "coderd_template" "awshp-windows-dcv" {
     # Version name is optional
     name = var.coder_gitsha
   }]
-  acl = {
-    users = [{
-      id   = coderd_user.coderGitOps.id
-      role = "admin"
-    }]
-    groups = []
-  }
 }
