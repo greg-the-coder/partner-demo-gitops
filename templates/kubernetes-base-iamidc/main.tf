@@ -130,7 +130,7 @@ resource "coder_agent" "main" {
     if [ ! -d "q" ]; then
       curl "https://desktop-release.q.us-east-1.amazonaws.com/latest/q-x86_64-linux-musl.zip" -o "q.zip"
       unzip q.zip
-      ./q/install.sh --global --no-confirm
+      sudo ./q/install.sh --global --no-confirm
       rm q.zip
     fi
 
