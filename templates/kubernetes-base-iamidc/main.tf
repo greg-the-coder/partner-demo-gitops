@@ -6,9 +6,15 @@ terraform {
     kubernetes = {
       source = "hashicorp/kubernetes"
     }
-  }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
 }
 
+provider "aws" {
+  region = var.aws_region
+}
 provider "coder" {
 }
 
@@ -30,6 +36,30 @@ variable "namespace" {
   type        = string
   description = "The Kubernetes namespace to create workspaces in (must exist prior to creating workspaces). If the Coder host is itself running as a Pod on the same Kubernetes cluster as you are deploying workspaces to, set this to the same namespace."
   default     = "coder"
+}
+
+variable "aws_region" {
+  type        = string
+  description = "AWS region for IAM Identity Center"
+  default     = "us-east-1"
+}
+
+variable "iam_identity_center_url" {
+  type        = string
+  description = "IAM Identity Center access URL"
+  default     = "https://d-9066325a54.awsapps.com/start"
+}
+
+variable "oauth_client_id" {
+  type        = string
+  description = "OAuth client ID for IAM Identity Center application"
+  sensitive   = true
+}
+
+variable "oauth_client_secret" {
+  type        = string
+  description = "OAuth client secret for IAM Identity Center application"
+  sensitive   = true
 }
 
 data "coder_parameter" "cpu" {
@@ -104,14 +134,54 @@ provider "kubernetes" {
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
 
+data "aws_ssoadmin_instances" "main" {}
+
+locals {
+  sso_instance_arn = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  sso_identity_store_id = tolist(data.aws_ssoadmin_instances.main.identity_store_ids)[0]
+}
+
+resource "coder_external_auth" "aws_iam_identity_center" {
+  id                = "aws-iam-identity-center"
+  type              = "oauth2"
+  display_name      = "AWS IAM Identity Center"
+  display_icon      = "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg"
+  
+  auth_url          = "${var.iam_identity_center_url}/login/oauth2/authorize"
+  token_url         = "${var.iam_identity_center_url}/login/oauth2/token"
+  validate_url      = "${var.iam_identity_center_url}/login/oauth2/userInfo"
+  
+  client_id         = var.oauth_client_id
+  client_secret     = var.oauth_client_secret
+  
+  scopes = [
+    "openid",
+    "profile",
+    "email"
+  ]
+  
+  extra_token_keys = [
+    "id_token"
+  ]
+  
+  username_field = "preferred_username"
+  
+  regex = ".*"
+}
+
 resource "coder_agent" "main" {
   os             = "linux"
   arch           = "amd64"
+  env = {
+    AWS_REGION                = var.aws_region
+    AWS_SSO_START_URL        = var.iam_identity_center_url
+    AWS_DEFAULT_SSO_REGION   = var.aws_region
+  }
+  
   startup_script = <<-EOT
     set -e
 
     # Install the latest code-server.
-    # Append "--version x.x.x" to install a specific version of code-server.
     curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server
 
     # Start code-server in the background.
@@ -126,6 +196,18 @@ resource "coder_agent" "main" {
       rm awscliv2.zip
     fi
 
+    # Configure AWS SSO profile automatically
+    mkdir -p ~/.aws
+    cat > ~/.aws/config << EOF
+[default]
+sso_start_url = ${var.iam_identity_center_url}
+sso_region = ${var.aws_region}
+sso_account_id = YOUR_ACCOUNT_ID
+sso_role_name = YOUR_ROLE_NAME
+region = ${var.aws_region}
+output = json
+EOF
+
     # install Q Developer CLI
     if [ ! -d "q" ]; then
       curl "https://desktop-release.q.us-east-1.amazonaws.com/latest/q-x86_64-linux-musl.zip" -o "q.zip"
@@ -137,30 +219,26 @@ resource "coder_agent" "main" {
     # install AWS CDK
     if ! command -v cdk &> /dev/null; then
       echo "Installing AWS CDK..."
-      # Install Node.js and npm (required for CDK)
-      # Add NodeSource repository for the latest LTS version
       curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
       sudo apt-get install nodejs -y
       sudo npm install -g npm@11.3.0
-
-      # Verify installation
       node -v
       npm -v
-
-      # Install AWS CDK globally
       sudo npm install -g aws-cdk
-      
-      # Verify CDK installation
       cdk --version
-      
       echo "AWS CDK installation completed"
     else
       echo "AWS CDK is already installed"
       cdk --version
     fi
 
-  EOT
+    # Display SSO login instructions
+    echo "To authenticate with AWS IAM Identity Center, run:"
+    echo "aws sso login"
+    echo "This will open a browser to complete authentication."
 
+  EOT
+  
   # The following metadata blocks are optional. They are used to display
   # information about your workspace in the dashboard. You can remove them
   # if you don't want to display any information.
