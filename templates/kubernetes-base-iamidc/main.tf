@@ -50,18 +50,6 @@ variable "iam_identity_center_url" {
   default     = "https://d-9066325a54.awsapps.com/start"
 }
 
-variable "oauth_client_id" {
-  type        = string
-  description = "OAuth client ID for IAM Identity Center application"
-  sensitive   = true
-}
-
-variable "oauth_client_secret" {
-  type        = string
-  description = "OAuth client secret for IAM Identity Center application"
-  sensitive   = true
-}
-
 data "coder_parameter" "cpu" {
   name         = "cpu"
   display_name = "CPU"
@@ -140,42 +128,51 @@ locals {
   sso_instance_arn = tolist(data.aws_ssoadmin_instances.main.arns)[0]
   sso_identity_store_id = tolist(data.aws_ssoadmin_instances.main.identity_store_ids)[0]
 }
+# Add AWS IAM Identity Center trusted token issuer
+resource "aws_ssoadmin_trusted_token_issuer" "coder" {
+  instance_arn = local.sso_instance_arn
+  
+  name         = "coder-oidc-issuer"
+  issuer_url   = "https://partner.demo.coder.com"
+  
+  trusted_token_issuer_configuration {
+    oidc_jwt_configuration {
+      issuer_url                = "https://partner.demo.coder.com"
+      claim_attribute_path      = "sub"
+      identity_store_attribute_path = "UserId"
+      jwks_retrieval_option     = "OPEN_ID_DISCOVERY"
+    }
+  }
+  
+  tags = {
+    Name = "Coder OIDC Trust"
+  }
+}
 
-resource "coder_external_auth" "aws_iam_identity_center" {
-  id                = "aws-iam-identity-center"
-  type              = "oauth2"
-  display_name      = "AWS IAM Identity Center"
-  display_icon      = "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg"
+# Create a permission set that can be assumed
+resource "aws_ssoadmin_permission_set" "coder_users" {
+  instance_arn = local.sso_instance_arn
+  name         = "CoderDeveloperAccess"
+  description  = "Permission set for Coder workspace users"
   
-  auth_url          = "${var.iam_identity_center_url}/login/oauth2/authorize"
-  token_url         = "${var.iam_identity_center_url}/login/oauth2/token"
-  validate_url      = "${var.iam_identity_center_url}/login/oauth2/userInfo"
-  
-  client_id         = var.oauth_client_id
-  client_secret     = var.oauth_client_secret
-  
-  scopes = [
-    "openid",
-    "profile",
-    "email"
-  ]
-  
-  extra_token_keys = [
-    "id_token"
-  ]
-  
-  username_field = "preferred_username"
-  
-  regex = ".*"
+  # Set session duration
+  session_duration = "PT8H"  # 8 hours
+}
+
+# Attach AWS managed policies to the permission set
+resource "aws_ssoadmin_managed_policy_attachment" "developer_access" {
+  instance_arn       = local.sso_instance_arn
+  managed_policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
+  permission_set_arn = aws_ssoadmin_permission_set.coder_users.arn
 }
 
 resource "coder_agent" "main" {
   os             = "linux"
   arch           = "amd64"
   env = {
-    AWS_REGION                = var.aws_region
-    AWS_SSO_START_URL        = var.iam_identity_center_url
-    AWS_DEFAULT_SSO_REGION   = var.aws_region
+    AWS_REGION     = var.aws_region
+    AWS_ROLE_ARN   = aws_ssoadmin_permission_set.coder_users.arn
+    AWS_WEB_IDENTITY_TOKEN_FILE = "/tmp/coder-token"
   }
   
   startup_script = <<-EOT
@@ -195,18 +192,6 @@ resource "coder_agent" "main" {
       aws --version
       rm awscliv2.zip
     fi
-
-    # Configure AWS SSO profile automatically
-    mkdir -p ~/.aws
-    cat > ~/.aws/config << EOF
-[default]
-sso_start_url = ${var.iam_identity_center_url}
-sso_region = ${var.aws_region}
-sso_account_id = YOUR_ACCOUNT_ID
-sso_role_name = YOUR_ROLE_NAME
-region = ${var.aws_region}
-output = json
-EOF
 
     # install Q Developer CLI
     if [ ! -d "q" ]; then
@@ -231,11 +216,23 @@ EOF
       echo "AWS CDK is already installed"
       cdk --version
     fi
-
-    # Display SSO login instructions
-    echo "To authenticate with AWS IAM Identity Center, run:"
-    echo "aws sso login"
-    echo "This will open a browser to complete authentication."
+    # Configure AWS to use OIDC token from Coder
+    mkdir -p ~/.aws
+    
+    # Get Coder OIDC token
+    echo "$CODER_AGENT_TOKEN" > /tmp/coder-token
+    
+    # Configure AWS CLI for OIDC
+    cat > ~/.aws/config << EOF
+[default]
+region = ${var.aws_region}
+role_arn = ${aws_ssoadmin_permission_set.coder_users.arn}
+web_identity_token_file = /tmp/coder-token
+role_session_name = coder-workspace-session
+EOF
+    
+    echo "AWS configured to use Coder OIDC tokens"
+    echo "Test with: aws sts get-caller-identity"
 
   EOT
   
