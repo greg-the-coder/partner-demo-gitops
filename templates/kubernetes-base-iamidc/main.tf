@@ -10,6 +10,7 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+  }
 }
 
 provider "aws" {
@@ -130,17 +131,17 @@ locals {
 }
 # Add AWS IAM Identity Center trusted token issuer
 resource "aws_ssoadmin_trusted_token_issuer" "coder" {
-  instance_arn = local.sso_instance_arn
-  
-  name         = "coder-oidc-issuer"
-  issuer_url   = "https://partner.demo.coder.com"
+  instance_arn                = local.sso_instance_arn
+  name                        = "partner.demo.coder.com"
+  trusted_token_issuer_type   = "OIDC_JWT"
+  client_token                = "coder-client-token"
   
   trusted_token_issuer_configuration {
     oidc_jwt_configuration {
-      issuer_url                = "https://partner.demo.coder.com"
-      claim_attribute_path      = "sub"
-      identity_store_attribute_path = "UserId"
-      jwks_retrieval_option     = "OPEN_ID_DISCOVERY"
+      issuer_url                    = "https://partner.demo.coder.com"
+      claim_attribute_path          = "sub"
+      identity_store_attribute_path = "externalId"
+      jwks_retrieval_option         = "OPEN_ID_DISCOVERY"
     }
   }
   
@@ -170,9 +171,9 @@ resource "coder_agent" "main" {
   os             = "linux"
   arch           = "amd64"
   env = {
-    AWS_REGION     = var.aws_region
-    AWS_ROLE_ARN   = aws_ssoadmin_permission_set.coder_users.arn
+    AWS_REGION                  = var.aws_region
     AWS_WEB_IDENTITY_TOKEN_FILE = "/tmp/coder-token"
+    SSO_PERMISSION_SET_ARN      = aws_ssoadmin_permission_set.coder_users.arn
   }
   
   startup_script = <<-EOT
@@ -222,13 +223,14 @@ resource "coder_agent" "main" {
     # Get Coder OIDC token
     echo "$CODER_AGENT_TOKEN" > /tmp/coder-token
     
-    # Configure AWS CLI for OIDC
+    # Configure AWS CLI for SSO
     cat > ~/.aws/config << EOF
 [default]
 region = ${var.aws_region}
-role_arn = ${aws_ssoadmin_permission_set.coder_users.arn}
-web_identity_token_file = /tmp/coder-token
-role_session_name = coder-workspace-session
+sso_start_url = ${var.iam_identity_center_url}
+sso_region = ${var.aws_region}
+sso_account_id = \$(aws sts get-caller-identity --query Account --output text)
+sso_role_name = CoderDeveloperAccess
 EOF
     
     echo "AWS configured to use Coder OIDC tokens"
