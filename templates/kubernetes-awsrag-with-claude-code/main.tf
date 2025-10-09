@@ -15,6 +15,11 @@ terraform {
     }
 }
 
+variable "eks_cluster_name" {
+  type        = string
+  description = "The AWS EKS Kubernetes cluster name that Coder is deployed within."
+}
+
 variable "namespace" {
   type        = string
   description = "The Kubernetes namespace to create workspaces in (must exist prior to creating workspaces). If the Coder host is itself running as a Pod on the same Kubernetes cluster as you are deploying workspaces to, set this to the same namespace."
@@ -444,8 +449,12 @@ resource "kubernetes_deployment" "dev" {
 
 module "aurora-pgvector" {
   source = "./aws-aurora"
-  
-  workspace_name = data.coder_workspace.me.name
+
+  workspace_name     = data.coder_workspace.me.name
+  eks_cluster_name   = var.eks_cluster_name
+  db_master_username = "dbadmin"
+  db_master_password = "YourStrongPasswordHere1"
+  database_name      = "mydb1"
 }
 
 resource "coder_metadata" "pod_info" {

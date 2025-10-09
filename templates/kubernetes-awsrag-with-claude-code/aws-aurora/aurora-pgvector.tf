@@ -4,6 +4,12 @@ variable "workspace_name" {
   default = "awsragproto"
 }
 
+variable "eks_cluster_name" {
+  description = "Name of the EKS cluster"
+  type        = string
+  default     = "coder-aws-cluster"
+}
+
 # Variables for existing VPC and subnets
 variable "vpc_id" {
   description = "ID of the existing VPC where Aurora will be deployed"
@@ -34,21 +40,43 @@ variable "db_master_password" {
   default     = "YourStrongPasswordHere1"  # Consider using AWS Secrets Manager for production
 }
 
-# Reference existing VPC
-data "aws_vpc" "existing_vpc" {
-  id = var.vpc_id
+## Reference existing VPC
+#data "aws_vpc" "existing_vpc" {
+#  id = var.vpc_id
+#}
+
+## Reference existing private subnets
+#data "aws_subnet" "existing_private_subnets" {
+#  count = length(var.subnet_ids)
+#  id    = var.subnet_ids[count.index]
+#}
+
+# Get EKS cluster info
+data "aws_eks_cluster" "current" {
+  name = var.eks_cluster_name  # Add this variable
 }
 
-# Reference existing private subnets
-data "aws_subnet" "existing_private_subnets" {
-  count = length(var.subnet_ids)
-  id    = var.subnet_ids[count.index]
+# Use EKS VPC
+data "aws_vpc" "existing_vpc" {
+  id = data.aws_eks_cluster.current.vpc_config[0].vpc_id
+}
+
+# Get private subnets from EKS
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.existing_vpc.id]
+  }
+  
+  tags = {
+    "kubernetes.io/role/internal-elb" = "1"
+  }
 }
 
 # Create a subnet group for Aurora instances using existing subnets
 resource "aws_db_subnet_group" "gtc_awsrag_aurora_subnet_group" {
   name       = "${var.workspace_name}-sgrp"
-  subnet_ids = data.aws_subnet.existing_private_subnets[*].id
+  subnet_ids = data.aws_subnets.private.ids
 
   tags = {
     Name = "${var.workspace_name}-sgrp"
