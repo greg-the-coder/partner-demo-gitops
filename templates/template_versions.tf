@@ -181,6 +181,10 @@ resource "coderd_template" "kubernetes-awsrag-with-claude-code" {
     tf_vars = [{
       name  = "namespace"
       value = "coder"
+    },
+    {
+      name  = "eks_cluster_name"
+      value = "gtc-test-podid-eks"
     }]
   }]
 }
