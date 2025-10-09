@@ -444,6 +444,8 @@ resource "kubernetes_deployment" "dev" {
 
 module "aurora-pgvector" {
   source = "./aws-aurora"
+  
+  workspace_name = data.coder_workspace.me.name
 }
 
 resource "coder_metadata" "pod_info" {

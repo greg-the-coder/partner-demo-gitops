@@ -1,3 +1,9 @@
+# variables for Coder Workspace Reference
+variable "workspace_name" {
+  type = string
+  default = "awsragproto"
+}
+
 # Variables for existing VPC and subnets
 variable "vpc_id" {
   description = "ID of the existing VPC where Aurora will be deployed"
@@ -41,17 +47,17 @@ data "aws_subnet" "existing_private_subnets" {
 
 # Create a subnet group for Aurora instances using existing subnets
 resource "aws_db_subnet_group" "gtc_awsrag_aurora_subnet_group" {
-  name       = "${data.coder_workspace.me.name}-sgrp"
+  name       = "${var.workspace_name}-sgrp"
   subnet_ids = data.aws_subnet.existing_private_subnets[*].id
 
   tags = {
-    Name = "${data.coder_workspace.me.name}-sgrp"
+    Name = "${var.workspace_name}-sgrp"
   }
 }
 
 # Create security group for Aurora instances
 resource "aws_security_group" "gtc_awsrag_aurora_sg" {
-  name        = "${data.coder_workspace.me.name}-sg"
+  name        = "${var.workspace_name}-sg"
   description = "Security group for Aurora PostgreSQL instances"
   vpc_id      = data.aws_vpc.existing_vpc.id
 
@@ -76,7 +82,7 @@ resource "aws_security_group" "gtc_awsrag_aurora_sg" {
 
 # First Aurora PostgreSQL Serverless v2 instance
 resource "aws_rds_cluster" "gtc_awsrag_aurora_postgres_1" {
-  cluster_identifier      = "${data.coder_workspace.me.name}-pgvector01"
+  cluster_identifier      = "${var.workspace_name}-pgvector01"
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
   engine_version          = "16.6"
