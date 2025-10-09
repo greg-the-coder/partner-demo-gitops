@@ -200,7 +200,7 @@ module "code-server" {
 module "claude-code" {
     count               = data.coder_workspace.me.start_count
     source              = "registry.coder.com/coder/claude-code/coder"
-    version             = "3.1.0"
+    version             = "2.2.0"
     agent_id            = coder_agent.dev.id
     folder              = local.home_folder
     subdomain           = false
