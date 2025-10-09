@@ -203,6 +203,7 @@ module "claude-code" {
     version             = "2.0.0"
     agent_id            = coder_agent.dev.id
     folder              = local.home_folder
+    subdomain           = false
 
     install_claude_code = true
     order               = 999
@@ -225,7 +226,7 @@ resource "coder_app" "preview" {
     icon         = "${data.coder_workspace.me.access_url}/emojis/1f50e.png"
     url          = "http://localhost:8501"
     share        = "authenticated"
-    subdomain    = true
+    subdomain    = false
     open_in      = "tab"
     order = 3
     healthcheck {
