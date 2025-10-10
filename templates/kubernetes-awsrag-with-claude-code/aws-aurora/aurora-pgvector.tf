@@ -10,18 +10,6 @@ variable "eks_cluster_name" {
   default     = "coder-aws-cluster"
 }
 
-# Variables for existing VPC and subnets
-variable "vpc_id" {
-  description = "ID of the existing VPC where Aurora will be deployed"
-  type        = string
-  default     = "vpc-0871232cd21251540"  # Replace with your actual VPC ID
-}
-
-variable "subnet_ids" {
-  description = "List of subnet IDs where Aurora will be deployed"
-  type        = list(string)
-  default     = ["subnet-0f0535010fd77a0c3", "subnet-00cbe04ad50f37808", "subnet-0bdc79d34b7380f1b"]  # Replace with your actual subnet IDs
-}
 #Variables for Aurora PostgreSQL Serverless v2
 
 variable "database_name" {
@@ -39,17 +27,6 @@ variable "db_master_password" {
   type        = string
   default     = "YourStrongPasswordHere1"  # Consider using AWS Secrets Manager for production
 }
-
-## Reference existing VPC
-#data "aws_vpc" "existing_vpc" {
-#  id = var.vpc_id
-#}
-
-## Reference existing private subnets
-#data "aws_subnet" "existing_private_subnets" {
-#  count = length(var.subnet_ids)
-#  id    = var.subnet_ids[count.index]
-#}
 
 # Get EKS cluster info
 data "aws_eks_cluster" "current" {
@@ -74,7 +51,7 @@ data "aws_subnets" "private" {
 }
 
 # Create a subnet group for Aurora instances using existing subnets
-resource "aws_db_subnet_group" "gtc_awsrag_aurora_subnet_group" {
+resource "aws_db_subnet_group" "awsrag_aurora_subnet_group" {
   name       = "${var.workspace_name}-sgrp"
   subnet_ids = data.aws_subnets.private.ids
 
@@ -84,7 +61,7 @@ resource "aws_db_subnet_group" "gtc_awsrag_aurora_subnet_group" {
 }
 
 # Create security group for Aurora instances
-resource "aws_security_group" "gtc_awsrag_aurora_sg" {
+resource "aws_security_group" "awsrag_aurora_sg" {
   name        = "${var.workspace_name}-sg"
   description = "Security group for Aurora PostgreSQL instances"
   vpc_id      = data.aws_vpc.existing_vpc.id
@@ -104,12 +81,12 @@ resource "aws_security_group" "gtc_awsrag_aurora_sg" {
   }
 
   tags = {
-    Name = "gtc_awsrag_aurora-sg"
+    Name = "${var.workspace_name}-sg"
   }
 }
 
 # First Aurora PostgreSQL Serverless v2 instance
-resource "aws_rds_cluster" "gtc_awsrag_aurora_postgres_1" {
+resource "aws_rds_cluster" "awsrag_aurora_postgres_1" {
   cluster_identifier      = "${var.workspace_name}-pgvector01"
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
@@ -128,20 +105,20 @@ resource "aws_rds_cluster" "gtc_awsrag_aurora_postgres_1" {
 }
 
 # Primary DB instance for the Aurora PostgreSQL cluster
-resource "aws_rds_cluster_instance" "gtc_awsrag_aurora_primary" {
-  cluster_identifier   = aws_rds_cluster.gtc_awsrag_aurora_postgres_1.id
+resource "aws_rds_cluster_instance" "awsrag_aurora_primary" {
+  cluster_identifier   = aws_rds_cluster.awsrag_aurora_postgres_1.id
   instance_class       = "db.serverless"
   engine               = "aurora-postgresql"
   engine_version       = "16.6"
-  db_subnet_group_name = aws_db_subnet_group.gtc_awsrag_aurora_subnet_group.name
+  db_subnet_group_name = aws_db_subnet_group.awsrag_aurora_subnet_group.name
   identifier           = "${var.workspace_name}-primary"
 }
 
 # Outputs
 output "aurora_postgres_1_endpoint" {
-  value = aws_rds_cluster.gtc_awsrag_aurora_postgres_1.endpoint
+  value = aws_rds_cluster.awsrag_aurora_postgres_1.endpoint
 }
 
 output "aurora_postgres_1_reader_endpoint" {
-  value = aws_rds_cluster.gtc_awsrag_aurora_postgres_1.reader_endpoint
+  value = aws_rds_cluster.awsrag_aurora_postgres_1.reader_endpoint
 }
