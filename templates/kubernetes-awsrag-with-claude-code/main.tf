@@ -230,21 +230,6 @@ module "kiro" {
   version  = "1.1.0"
   agent_id = coder_agent.dev.id
   folder   = "/home/coder"
-  mcp = jsonencode({
-    mcpServers = {
-      "github" : {
-        "url" : "https://api.githubcopilot.com/mcp/",
-        "headers" : {
-          "Authorization" : "Bearer ${data.coder_external_auth.github.access_token}",
-        },
-        "type" : "http"
-      }
-    }
-  })
-}
-
-data "coder_external_auth" "github" {
-  id = "github"
 }
 
 resource "coder_app" "preview" {
