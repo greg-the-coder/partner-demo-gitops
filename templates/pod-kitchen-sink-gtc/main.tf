@@ -93,10 +93,10 @@ data "coder_parameter" "image" {
   order = 4
 }
 
-data "coder_external_auth" "github" {
-  id       = "primary-github"
-  optional = true
-}
+#data "coder_external_auth" "github" {
+#  id       = "primary-github"
+#  optional = true
+#}
 
 data "coder_parameter" "repo" {
   name        = "Source Code Repository"
@@ -154,19 +154,11 @@ locals {
       icon = "/emojis/1f1ec-1f1e7.png" # 🇬🇧
     }
   }
-  default_namespace = "coder-ws-experiment"
+  default_namespace = "coder"
   namespaces = {
-    "coder-ws-demo" = {
-      name = "coder-ws-demo"
+    "coder" = {
+      name = "coder"
       icon = "/emojis/1f947.png"
-    }
-    "coder-ws" = {
-      name = "coder-ws"
-      icon = "/emojis/1f948.png"
-    }
-    "coder-ws-experiment" = {
-      name = "coder-ws-experiment"
-      icon = "/emojis/1f949.png"
     }
   }
 }
@@ -206,13 +198,6 @@ data "coder_parameter" "location" {
     }
   }
   order = 8
-}
-
-# Provisionser Tags
-data "coder_workspace_tags" "location" {
-  tags = {
-    region = data.coder_parameter.location.value
-  }
 }
 
 resource "coder_agent" "pod-agent" {
@@ -424,10 +409,10 @@ resource "kubernetes_deployment" "main" {
             value = coder_agent.pod-agent.token
           }
 
-          env {
-            name = "GH_TOKEN"
-            value = data.coder_external_auth.github.access_token
-          }
+#          env {
+#            name = "GH_TOKEN"
+#            value = data.coder_external_auth.github.access_token
+#          }
 
           resources {
             requests = {
