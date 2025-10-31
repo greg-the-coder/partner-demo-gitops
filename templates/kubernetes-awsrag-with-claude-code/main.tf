@@ -112,7 +112,7 @@ data "coder_workspace_owner" "me" {}
 resource "coder_agent" "dev" {
     arch = "amd64"
     os = "linux"
-    dir = local.home_folder
+    dir = local.home_dir
   startup_script = <<-EOT
     set -e
     sudo apt update
@@ -207,7 +207,7 @@ module "code-server" {
   version    = "1.3.1"
   agent_id   = coder_agent.dev.id
   order      = 1
-  folder     = local.home_folder
+  folder     = local.home_dir
   subdomain  = false
 }
 
@@ -216,7 +216,7 @@ module "claude-code" {
     source              = "registry.coder.com/coder/claude-code/coder"
     version             = "2.2.0"
     agent_id            = coder_agent.dev.id
-    folder              = local.home_folder
+    folder              = local.home_dir
     subdomain           = false
 
     install_claude_code = true
@@ -238,7 +238,7 @@ module "kiro" {
   source   = "registry.coder.com/coder/kiro/coder"
   version  = "1.1.0"
   agent_id = coder_agent.dev.id
-  folder   = local.home_folder
+  folder   = local.home_dir
 }
 
 resource "coder_app" "preview" {
