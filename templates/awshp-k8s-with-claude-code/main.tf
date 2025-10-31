@@ -141,7 +141,7 @@ module "kiro" {
 module "claude-code" {
     count               = data.coder_workspace.me.start_count
     source              = "registry.coder.com/coder/claude-code/coder"
-    version             = "2.2.0"
+    version             = "3.4.4"
     agent_id            = coder_agent.dev.id
     folder              = local.home_folder
     subdomain           = false
@@ -179,7 +179,6 @@ resource "coder_app" "preview" {
 
 locals {
     cost = 2
-    region = "us-east-2"
     home_folder = "/home/coder"
 }
 
