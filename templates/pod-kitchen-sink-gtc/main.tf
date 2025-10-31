@@ -98,48 +98,26 @@ data "coder_parameter" "image" {
 #  optional = true
 #}
 
-data "coder_parameter" "repo" {
-  name        = "Source Code Repository"
-  type        = "string"
-  description = "What source code repository do you want to clone?"
-  mutable     = true
-  form_type   = "dropdown"
-  default     = "https://github.com/coder-contrib/coder"
-  icon        = "https://avatars.githubusercontent.com/u/95932066?s=200&v=4"
-
-  option {
-    name  = "PAC-MAN"
-    value = "https://github.com/coder-contrib/pacman-nodejs"
-    icon  = "https://assets.stickpng.com/images/5a18871c8d421802430d2d05.png"
-  }
-  option {
-    name  = "Coder v2 OSS project"
-    value = "https://github.com/coder-contrib/coder"
-    icon  = "/icon/coder.svg"
-  }
-  option {
-    name  = "Coder code-server project"
-    value = "https://github.com/coder/code-server"
-    icon  = "/icon/code.svg"
-  }
-  order = 5
+# Prompt the user for the git repo URL
+data "coder_parameter" "git_repo" {
+  name         = "git_repo"
+  display_name = "Git repository"
+  default      = "https://github.com/greg-the-coder/aws-rag-prototyping.git"
 }
 
-data "coder_parameter" "startup-script" {
-  name        = "startup_script"
-  type        = "string"
-  description = "Script to run on startup!"
-  mutable     = contains(data.coder_workspace_owner.me.groups, "admins")
-  default     = ""
-  icon        = "/icon/terminal.svg"
-  form_type   = "textarea"
-  order       = 6
+# Clone the repository 
+module "git_clone" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder/git-clone/coder"
+  version  = "1.1.1"
+  agent_id = coder_agent.pod-agent.id
+  url      = data.coder_parameter.git_repo.value
 }
 
 locals {
   home_dir        = "/home/coder"
-  folder_name     = try(element(split("/", data.coder_parameter.repo.value), length(split("/", data.coder_parameter.repo.value)) - 1), "")
-  repo_owner_name = try(element(split("/", data.coder_parameter.repo.value), length(split("/", data.coder_parameter.repo.value)) - 2), "")
+  folder_name     = try(element(split("/", data.coder_parameter.git_repo.value), length(split("/", data.coder_parameter.git_repo.value)) - 1), "")
+  repo_owner_name = try(element(split("/", data.coder_parameter.git_repo.value), length(split("/", data.coder_parameter.git_repo.value)) - 2), "")
   regions = {
     "us-east-2" = {
       name = "Ohio"
@@ -203,7 +181,7 @@ data "coder_parameter" "location" {
 resource "coder_agent" "pod-agent" {
   os             = "linux"
   arch           = "amd64"
-  startup_script = data.coder_parameter.startup-script.value
+  # startup_script = data.coder_parameter.startup-script.value
   # The following metadata blocks are optional. They are used to display
   # information about your workspace in the dashboard. You can remove them
   # if you don't want to display any information.
@@ -270,26 +248,6 @@ resource "coder_agent" "pod-agent" {
 
   dir                     = local.home_dir
   startup_script_behavior = "blocking"
-}
-
-resource "coder_app" "preview-pac-man" {
-  count = data.coder_parameter.repo.value == "https://github.com/coder-contrib/pacman-nodejs" ? 1 : 0
-
-  agent_id     = coder_agent.pod-agent.id
-  slug         = "pacman"
-  display_name = "Play PAC-MAN"
-  icon         = "https://assets.stickpng.com/images/5a18871c8d421802430d2d05.png"
-  url          = "http://localhost:8080"
-  tooltip      = "Click to open and play PAC-MAN!"
-  share        = "owner"
-  subdomain    = true
-  open_in      = "slim-window"
-  order        = 998
-  healthcheck {
-    url       = "http://localhost:8080"
-    interval  = 20
-    threshold = 6
-  }
 }
 
 locals {
@@ -407,6 +365,14 @@ resource "kubernetes_deployment" "main" {
           env {
             name  = "CODER_AGENT_TOKEN"
             value = coder_agent.pod-agent.token
+          }
+          env {
+            name  = "GIT_AUTHOR_NAME"
+            value = data.coder_workspace_owner.me.name
+          }
+          env {
+            name  = "GIT_AUTHOR_EMAIL"
+            value = data.coder_workspace_owner.me.email
           }
 
 #          env {
