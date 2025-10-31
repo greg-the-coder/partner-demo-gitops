@@ -141,13 +141,23 @@ module "kiro" {
 module "claude-code" {
     count               = data.coder_workspace.me.start_count
     source              = "registry.coder.com/coder/claude-code/coder"
-    version             = "3.4.4"
+    version             = "2.2.0"
     agent_id            = coder_agent.dev.id
-    workdir             = local.home_folder
+    folder              = local.home_folder
     subdomain           = false
 
     install_claude_code = true
     order               = 999
+
+    experiment_report_tasks = true
+    experiment_pre_install_script = <<-EOF
+        # If user doesn't have a Github account or aren't 
+        # part of the coder-contrib organization, then they can use the `coder-contrib-bot` account.
+        if [ ! -z "$GH_USERNAME" ]; then
+            unset -v GIT_ASKPASS
+            unset -v GIT_SSH_COMMAND
+        fi
+    EOF
 }
 
 resource "coder_app" "preview" {
