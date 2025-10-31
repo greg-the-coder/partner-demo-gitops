@@ -118,23 +118,22 @@ resource "coder_agent" "dev" {
 
 module "coder-login" {
     source   = "registry.coder.com/coder/coder-login/coder"
-    version  = "1.0.15"
+    version  = "1.1.0"
     agent_id = coder_agent.dev.id
 }
 
-module "vscode-web" {
-    source         = "registry.coder.com/coder/vscode-web/coder"
-    version        = "1.2.0"
+module "code-server" {
+    source   = "registry.coder.com/coder/code-server/coder"
+    version  = "1.3.1"
     agent_id       = coder_agent.dev.id
     folder         = local.home_folder
-    accept_license = true
     subdomain = false
     order = 0
 }
 
 module "kiro" {
-  source   = "registry.coder.com/coder/kiro/coder"
-  version  = "1.0.0"
+    source   = "registry.coder.com/coder/kiro/coder"
+    version  = "1.1.0"
     agent_id = coder_agent.dev.id
     order = 1
 }
