@@ -33,6 +33,10 @@ variable "anthropic_small_fast_model" {
   default     = "global.anthropic.claude-haiku-4-5-20251001-v1:0"
 }
 
+locals {
+  home_dir        = "/home/coder"
+}
+
 # Minimum vCPUs needed 
 data "coder_parameter" "cpu" {
   name        = "CPU cores"
