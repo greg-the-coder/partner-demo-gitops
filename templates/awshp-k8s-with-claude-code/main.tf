@@ -6,6 +6,7 @@ terraform {
         }
         coder = {
             source = "coder/coder"
+            version = "2.8.0"
         }
         random = {
             source = "hashicorp/random"
@@ -107,7 +108,6 @@ resource "coder_agent" "dev" {
         ANTHROPIC_MODEL = var.anthropic_model,
         ANTHROPIC_SMALL_FAST_MODEL = var.anthropic_small_fast_model,
         CODER_MCP_APP_STATUS_SLUG = "claude-code"
-        CODER_TASK_ID = data.coder_workspace.me.id
     }
     display_apps {
         vscode          = false
