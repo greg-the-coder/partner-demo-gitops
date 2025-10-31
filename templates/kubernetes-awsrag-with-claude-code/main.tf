@@ -18,75 +18,83 @@ terraform {
 variable "eks_cluster_name" {
   type        = string
   description = "The AWS EKS Kubernetes cluster name that Coder is deployed within."
+  default     = "coder-eks-cluster"
 }
 
 variable "namespace" {
   type        = string
   description = "The Kubernetes namespace to create workspaces in (must exist prior to creating workspaces). If the Coder host is itself running as a Pod on the same Kubernetes cluster as you are deploying workspaces to, set this to the same namespace."
+  default     = "coder"
 }
 
+variable "anthropic_model" {
+  type        = string
+  description = "The AWS Inference profile ID of the base Anthropic model to use with Claude Code"
+  default     = "global.anthropic.claude-sonnet-4-5-20250929-v1:0"
+}
+
+variable "anthropic_small_fast_model" {
+  type        = string
+  description = "The AWS Inference profile ID of the small fast Anthropic model to use with Claude Code"
+  default     = "global.anthropic.claude-haiku-4-5-20251001-v1:0"
+}
+
+variable "postgresql_version" {
+  type        = string
+  description = "The AWS Aurora PostgreSQL Database Engine Version to deploy"
+  default     = "16.8"
+}
+
+locals {
+  home_dir        = "/home/coder"
+}
+
+# Minimum vCPUs needed 
 data "coder_parameter" "cpu" {
-  name         = "cpu"
-  display_name = "CPU"
-  description  = "The number of CPU cores"
-  default      = "2"
-  icon         = "/icon/memory.svg"
-  mutable      = true
-  option {
-    name  = "2 Cores"
-    value = "2"
+  name        = "CPU cores"
+  type        = "number"
+  description = "CPU cores for your individual workspace"
+  icon        = "https://png.pngtree.com/png-clipart/20191122/original/pngtree-processor-icon-png-image_5165793.jpg"
+  validation {
+    min = 4
+    max = 8
   }
-  option {
-    name  = "4 Cores"
-    value = "4"
-  }
-  option {
-    name  = "6 Cores"
-    value = "6"
-  }
-  option {
-    name  = "8 Cores"
-    value = "8"
-  }
+  form_type = "input"
+  mutable   = true
+  default   = 4
+  order     = 1
 }
 
+# Minimum GB memory needed 
 data "coder_parameter" "memory" {
-  name         = "memory"
-  display_name = "Memory"
-  description  = "The amount of memory in GB"
-  default      = "2"
-  icon         = "/icon/memory.svg"
-  mutable      = true
-  option {
-    name  = "2 GB"
-    value = "2"
+  name        = "Memory (__ GB)"
+  type        = "number"
+  description = "Memory (__ GB) for your individual workspace"
+  icon        = "https://www.vhv.rs/dpng/d/33-338595_random-access-memory-logo-hd-png-download.png"
+  validation {
+    min = 4
+    max = 16
   }
-  option {
-    name  = "4 GB"
-    value = "4"
-  }
-  option {
-    name  = "6 GB"
-    value = "6"
-  }
-  option {
-    name  = "8 GB"
-    value = "8"
-  }
+  form_type = "input"
+  mutable   = true
+  default   = 4
+  order     = 2
 }
 
 data "coder_parameter" "home_disk_size" {
-  name         = "home_disk_size"
-  display_name = "Home disk size"
-  description  = "The size of the home disk in GB"
-  default      = "10"
-  type         = "number"
-  icon         = "/emojis/1f4be.png"
-  mutable      = false
+  name        = "PVC storage size"
+  type        = "number"
+  description = "Number of GB of storage for '${local.home_dir}'! This will persist after the workspace's K8s Pod is shutdown or deleted."
+  icon        = "https://www.pngall.com/wp-content/uploads/5/Database-Storage-PNG-Clipart.png"
   validation {
-    min = 1
-    max = 99999
+    min       = 10
+    max       = 50
+    monotonic = "increasing"
   }
+  form_type = "slider"
+  mutable   = true
+  default   = 10
+  order     = 3
 }
 
 data "coder_parameter" "ai_prompt" {
@@ -153,8 +161,8 @@ resource "coder_agent" "dev" {
         CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
         CODER_MCP_CLAUDE_SYSTEM_PROMPT      = local.system_prompt
         CLAUDE_CODE_USE_BEDROCK = "1"
-        ANTHROPIC_MODEL = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
-        ANTHROPIC_SMALL_FAST_MODEL = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+        ANTHROPIC_MODEL = var.anthropic_model
+        ANTHROPIC_SMALL_FAST_MODEL = var.anthropic_small_fast_model
         CODER_MCP_APP_STATUS_SLUG = "claude-code"
         PGVECTOR_USER = "dbadmin"
         PGVECTOR_PASSWORD = "YourStrongPasswordHere1"
@@ -172,7 +180,7 @@ resource "coder_agent" "dev" {
 
 module "coder-login" {
     source   = "registry.coder.com/coder/coder-login/coder"
-    version  = "1.0.15"
+    version  = "1.1.0"
     agent_id = coder_agent.dev.id
 }
 
@@ -187,19 +195,20 @@ data "coder_parameter" "git_repo" {
 module "git_clone" {
   count    = data.coder_workspace.me.start_count
   source   = "registry.coder.com/coder/git-clone/coder"
-  version  = "1.1.1"
+  version  = "1.2.0"
   agent_id = coder_agent.dev.id
   url      = data.coder_parameter.git_repo.value
 }
 
 # Create a code-server instance for the cloned repository
 module "code-server" {
-  count    = data.coder_workspace.me.start_count
-  source   = "registry.coder.com/coder/code-server/coder"
-  version  = "1.0.18"
-  agent_id = coder_agent.dev.id
-  order    = 1
-  folder   = "/home/coder"
+  count      = data.coder_workspace.me.start_count
+  source     = "registry.coder.com/coder/code-server/coder"
+  version    = "1.3.1"
+  agent_id   = coder_agent.dev.id
+  order      = 1
+  folder     = local.home_folder
+  subdomain  = false
 }
 
 module "claude-code" {
@@ -229,7 +238,7 @@ module "kiro" {
   source   = "registry.coder.com/coder/kiro/coder"
   version  = "1.1.0"
   agent_id = coder_agent.dev.id
-  folder   = "/home/coder"
+  folder   = local.home_folder
 }
 
 resource "coder_app" "preview" {
@@ -251,8 +260,7 @@ resource "coder_app" "preview" {
 
 locals {
     cost = 2
-    region = "us-east-2"
-    home_folder = "/home/coder"
+    region = "us-west-2"
 }
 
 locals {
@@ -463,6 +471,7 @@ module "aurora-pgvector" {
   db_master_username = "dbadmin"
   db_master_password = "YourStrongPasswordHere1"
   database_name      = "mydb1"
+  postgresql_version = var.postgresql_version
 }
 
 resource "coder_metadata" "pod_info" {

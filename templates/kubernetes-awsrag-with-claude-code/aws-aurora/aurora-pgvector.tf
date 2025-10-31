@@ -28,6 +28,12 @@ variable "db_master_password" {
   default     = "YourStrongPasswordHere1"  # Consider using AWS Secrets Manager for production
 }
 
+variable "postgresql_version" {
+  description = "PostgreSQL database version"
+  type        = string
+  default     = "16.8"  
+}
+
 # Get EKS cluster info
 data "aws_eks_cluster" "current" {
   name = var.eks_cluster_name  # Add this variable
@@ -90,7 +96,7 @@ resource "aws_rds_cluster" "awsrag_aurora_postgres_1" {
   cluster_identifier      = "${var.workspace_name}-pgvector01"
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
-  engine_version          = "16.6"
+  engine_version          = var.postgresql_version
   database_name           = var.database_name
   master_username         = var.db_master_username
   master_password         = var.db_master_password  # Use AWS Secrets Manager in production
