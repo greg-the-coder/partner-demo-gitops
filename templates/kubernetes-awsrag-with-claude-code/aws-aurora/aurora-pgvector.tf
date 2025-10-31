@@ -115,7 +115,7 @@ resource "aws_rds_cluster_instance" "awsrag_aurora_primary" {
   cluster_identifier   = aws_rds_cluster.awsrag_aurora_postgres_1.id
   instance_class       = "db.serverless"
   engine               = "aurora-postgresql"
-  engine_version       = "16.6"
+  engine_version       = var.postgresql_version
   db_subnet_group_name = aws_db_subnet_group.awsrag_aurora_subnet_group.name
   identifier           = "${var.workspace_name}-primary"
 }
