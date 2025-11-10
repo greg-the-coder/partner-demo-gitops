@@ -221,7 +221,7 @@ resource "coderd_template" "aws-linux-ec2-container" {
   description = "Provision AWS EC2 VMs as Coder workspaces for Container Development"
   icon = "/icon/aws.png"
   versions = [{
-    directory = "./ws-linux-ec2-container"
+    directory = "./aws-linux-ec2-container"
     active    = true
     # Version name is optional
     name = var.coder_gitsha
