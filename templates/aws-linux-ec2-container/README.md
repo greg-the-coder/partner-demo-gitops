@@ -1,15 +1,15 @@
 ---
-display_name: AWS EC2 (Linux)
-description: Provision AWS EC2 VMs as Coder workspaces
+display_name: AWS EC2 (Linux) with Container Development
+description: Provision AWS EC2 VMs with Docker and devcontainer support for containerized development
 icon: ../../../site/static/icon/aws.svg
 maintainer_github: coder
 verified: true
-tags: [vm, linux, aws, persistent-vm]
+tags: [vm, linux, aws, persistent-vm, docker, devcontainer, containers]
 ---
 
-# Remote Development on AWS EC2 VMs (Linux)
+# Container Development on AWS EC2 VMs (Linux)
 
-Provision AWS EC2 VMs as [Coder workspaces](https://coder.com/docs/workspaces) with this example template.
+Provision AWS EC2 VMs as [Coder workspaces](https://coder.com/docs/workspaces) with full container development support, including Docker and automatic devcontainer detection.
 
 ## Prerequisites
 
@@ -76,19 +76,57 @@ instances provisioned by Coder:
 }
 ```
 
+## Features
+
+- **Docker Support**: Pre-installed Docker Engine with the Coder user added to the docker group
+- **Devcontainer Integration**: Automatic detection and startup of devcontainers from `.devcontainer/devcontainer.json`
+- **Git Repository Cloning**: Configurable repository URL and branch for automatic project setup
+- **Development Tools**: Node.js LTS, build tools, and Devcontainer CLI pre-installed
+- **Persistent Storage**: Full filesystem persistence across workspace restarts
+
+## Template Parameters
+
+- **Repository URL**: Git repository containing your devcontainer configuration (default: https://github.com/coder/coder-devcontainer-demo)
+- **Repository Branch**: Git branch to checkout (default: main)
+- **Region**: AWS region for deployment
+- **Instance Type**: EC2 instance size (t3.large, t3.xlarge, t3.2xlarge)
+- **Disk Size**: Root volume size (20-80 GB, adjustable via slider)
+
 ## Architecture
 
 This template provisions the following resources:
 
-- AWS Instance
+- **AWS EC2 Instance**: Ubuntu 20.04 LTS with Docker and development tools
+- **Git Clone Module**: Automatically clones the specified repository
+- **Devcontainer Resource**: Detects and starts devcontainers from the cloned repository
 
-Coder uses `aws_ec2_instance_state` to start and stop the VM. This example template is fully persistent, meaning the full filesystem is preserved when the workspace restarts. See this [community example](https://github.com/bpmct/coder-templates/tree/main/aws-linux-ephemeral) of an ephemeral AWS instance.
+Coder uses `aws_ec2_instance_state` to start and stop the VM. This template is fully persistent, meaning the full filesystem and container state are preserved when the workspace restarts.
 
 > **Note**
 > This template is designed to be a starting point! Edit the Terraform to extend the template to support your use case.
 
-## code-server
+## Container Development Workflow
 
-`code-server` is installed via the `startup_script` argument in the `coder_agent`
-resource block. The `coder_app` resource is defined to access `code-server` through
-the dashboard UI over `localhost:13337`.
+1. **Repository Setup**: The template automatically clones your specified Git repository
+2. **Devcontainer Detection**: The `coder_devcontainer` resource scans for `.devcontainer/devcontainer.json` in your project
+3. **Automatic Startup**: If a devcontainer configuration is found, it's automatically built and started
+4. **Development Environment**: Your containerized development environment is ready with all dependencies installed
+
+## Getting Started
+
+1. Create a workspace using this template
+2. Specify your repository URL containing a `.devcontainer/devcontainer.json` file
+3. The workspace will automatically:
+   - Clone your repository
+   - Build the devcontainer image
+   - Start the development container
+   - Mount your code into the container
+
+## Devcontainer Support
+
+This template supports the full [Development Containers specification](https://containers.dev/), including:
+- Custom Docker images and Dockerfiles
+- VS Code extensions and settings
+- Port forwarding configuration
+- Environment variables and secrets
+- Post-creation commands and lifecycle scripts
