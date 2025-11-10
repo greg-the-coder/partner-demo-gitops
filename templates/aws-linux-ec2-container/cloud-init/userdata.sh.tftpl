@@ -1,0 +1,47 @@
+#!/bin/bash
+echo "Starting cloud-init userdata script..."
+
+# Update system
+apt-get update -y
+
+# Install Docker
+if ! command -v docker &> /dev/null; then
+  echo "Installing Docker..."
+  
+  # Install prerequisites
+  apt-get install -y ca-certificates curl gnupg lsb-release
+
+  # Add Docker's official GPG key
+  mkdir -p /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+  # Set up repository
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+  # Install Docker Engine
+  apt-get update
+  apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+  # Add coder user to docker group
+  usermod -aG docker ${linux_user}
+
+  # Start and enable Docker
+  systemctl start docker
+  systemctl enable docker
+
+  echo "Docker installed successfully!"
+fi
+
+# Install development tools
+apt-get install -y curl wget git build-essential
+
+# Install latest Node.js LTS
+curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+apt-get install -y nodejs
+
+# Install Devcontainer CLI globally
+npm install -g @devcontainers/cli
+
+echo "Cloud-init userdata script completed"
+
+sudo -u '${linux_user}' sh -c '${init_script}'

@@ -214,3 +214,17 @@ resource "coderd_template" "aws-linux-dlami" {
     name = var.coder_gitsha
   }]
 }
+
+resource "coderd_template" "aws-linux-ec2-container" {
+  name        = "aws-linux-ec2-container"
+  display_name = "AWS EC2 (Linux) Container Development"
+  description = "Provision AWS EC2 VMs as Coder workspaces for Container Development"
+  icon = "/icon/aws.png"
+  versions = [{
+    directory = "./ws-linux-ec2-container"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+  }]
+}
+
