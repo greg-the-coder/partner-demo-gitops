@@ -70,6 +70,23 @@ resource "coderd_template" "awshp-linux-q-base" {
   }]
 }
 
+resource "coderd_template" "awshp-linux-atx-base" {
+  name        = "awshp-linux-atx-base"
+  display_name = "AWS Workshop - EC2 (Linux) Transform CLI"
+  description = "Provision AWS EC2 VMs as an AWS Transform enabled Coder workspaces"
+  icon = "/icon/aws.png"
+  versions = [{
+    directory = "./awshp-linux-atx-base"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+    tf_vars = [{
+      name  = "aws_iam_profile"
+      value = "coder-workshop-ec2-workspace-profile"
+    }]
+  }]
+}
+
 resource "coderd_template" "awshp-linux-sam" {
   name        = "awshp-linux-sam"
   display_name = "AWS Workshop - EC2 (Linux) SAM"
