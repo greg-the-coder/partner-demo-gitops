@@ -106,7 +106,7 @@ locals {
 locals {
     port = 3000
     domain = element(split("/", data.coder_workspace.me.access_url), -1)
-    access_url = data.coder_workspace.me.access_url
+    access_url = tostring(data.coder_workspace.me.access_url)
 }
 
 locals {
