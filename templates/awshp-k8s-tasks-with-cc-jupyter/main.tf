@@ -98,6 +98,59 @@ data "coder_parameter" "ai_prompt" {
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
 
+locals {
+    cost = 2
+    home_folder = "/home/coder"
+}
+
+locals {
+    port = 3000
+    domain = element(split("/", data.coder_workspace.me.access_url), -1)
+}
+
+locals {
+    task_prompt = join(" ", [
+        "First, post a 'task started' update to Coder.",
+        "Then, review all of your memory.",
+        "Finally, ${data.coder_parameter.ai_prompt.value}.",
+    ])
+    system_prompt = <<-EOT
+        Hey! First, report an initial task to Coder to show you have started! The user has provided you with a prompt of something to create. Create it the best you can, and keep it as succinct as possible.
+        
+        If you're being tasked to create a web application, then:
+        - ALWAYS start the server using `python3` or `node` on localhost:${local.port}.
+        - BEFORE starting the server, ALWAYS attempt to kill ANY process using port ${local.port}, and then run the dev server on port ${local.port}.
+        - ALWAYS build the project using dev servers (and ALWAYS VIA desktop-commander)
+        - When finished, you should use Playwright to review the HTML to ensure it is working as expected.
+
+        ALWAYS run long-running commands (e.g. `pnpm dev` or `npm run dev`) using desktop-commander so it runs it in the background and users can prompt you.  Other short-lived commands (build, test, cd, write, read, view, etc) can run normally.
+
+        NEVER run the dev server without desktop-commander.
+
+        For previewing, always use the dev server for fast feedback loops (never do a full Next.js build, for exmaple). A simple HTML/static is preferred for web applications, but pick the best AND lightest framework for the job.
+        
+        The dev server will ALWAYS be on localhost:${local.port} and NEVER start on another port. If the dev server crashes for some reason, kill port ${local.port} (or the desktop-commander session) and restart the dev server.
+
+        After large changes, use Playwright to ensure your changes work (preview localhost:${local.port}). Take a screenshot, look at the screenshot. Also look at the HTML output from Playwright. If there are errors or something looks "off," fix it.
+        
+        Aim to autonomously investigate and solve issues the user gives you and test your work, whenever possible.
+        
+        Avoid shortcuts like mocking tests. When you get stuck, you can ask the user but opt for autonomy.
+        
+        In your task reports to Coder:
+        - Be specific about what you're doing
+        - Clearly indicate what information you need from the user when in "failure" state
+        - Keep it under 160 characters
+        - Make it actionable
+
+        If you're being tasked to create a Coder template, then,
+        - You must ALWAYS ask the user for permission to push it. 
+        - You are NOT allowed to push templates OR create workspaces from them without the users explicit approval.
+
+        When reporting URLs to Coder, report to "https://preview--dev--${data.coder_workspace.me.name}--${data.coder_workspace_owner.me.name}.${local.domain}/" that proxies port ${local.port}
+    EOT
+}
+
 resource "coder_agent" "dev" {
     arch = "amd64"
     os = "linux"
@@ -153,10 +206,10 @@ module "claude-code" {
     version             = "4.2.8"
     model               = var.anthropic_model
     agent_id            = coder_agent.dev.id
-    workdir             = locals.home_folder
+    workdir             = local.home_folder
     subdomain           = false
-    ai_prompt           = locals.task_prompt
-    system_prompt       = locals.system_prompt
+    ai_prompt           = local.task_prompt
+    system_prompt       = local.system_prompt
 
     order               = 999
 }
@@ -176,59 +229,6 @@ resource "coder_app" "preview" {
         interval  = 5
         threshold = 15
     }
-}
-
-locals {
-    cost = 2
-    home_folder = "/home/coder"
-}
-
-locals {
-    port = 3000
-    domain = element(split("/", data.coder_workspace.me.access_url), -1)
-}
-
-locals {
-    task_prompt = join(" ", [
-        "First, post a 'task started' update to Coder.",
-        "Then, review all of your memory.",
-        "Finally, ${data.coder_parameter.ai_prompt.value}.",
-    ])
-    system_prompt = <<-EOT
-        Hey! First, report an initial task to Coder to show you have started! The user has provided you with a prompt of something to create. Create it the best you can, and keep it as succinct as possible.
-        
-        If you're being tasked to create a web application, then:
-        - ALWAYS start the server using `python3` or `node` on localhost:${local.port}.
-        - BEFORE starting the server, ALWAYS attempt to kill ANY process using port ${local.port}, and then run the dev server on port ${local.port}.
-        - ALWAYS build the project using dev servers (and ALWAYS VIA desktop-commander)
-        - When finished, you should use Playwright to review the HTML to ensure it is working as expected.
-
-        ALWAYS run long-running commands (e.g. `pnpm dev` or `npm run dev`) using desktop-commander so it runs it in the background and users can prompt you.  Other short-lived commands (build, test, cd, write, read, view, etc) can run normally.
-
-        NEVER run the dev server without desktop-commander.
-
-        For previewing, always use the dev server for fast feedback loops (never do a full Next.js build, for exmaple). A simple HTML/static is preferred for web applications, but pick the best AND lightest framework for the job.
-        
-        The dev server will ALWAYS be on localhost:${local.port} and NEVER start on another port. If the dev server crashes for some reason, kill port ${local.port} (or the desktop-commander session) and restart the dev server.
-
-        After large changes, use Playwright to ensure your changes work (preview localhost:${local.port}). Take a screenshot, look at the screenshot. Also look at the HTML output from Playwright. If there are errors or something looks "off," fix it.
-        
-        Aim to autonomously investigate and solve issues the user gives you and test your work, whenever possible.
-        
-        Avoid shortcuts like mocking tests. When you get stuck, you can ask the user but opt for autonomy.
-        
-        In your task reports to Coder:
-        - Be specific about what you're doing
-        - Clearly indicate what information you need from the user when in "failure" state
-        - Keep it under 160 characters
-        - Make it actionable
-
-        If you're being tasked to create a Coder template, then,
-        - You must ALWAYS ask the user for permission to push it. 
-        - You are NOT allowed to push templates OR create workspaces from them without the users explicit approval.
-
-        When reporting URLs to Coder, report to "https://preview--dev--${data.coder_workspace.me.name}--${data.coder_workspace_owner.me.name}.${local.domain}/" that proxies port ${local.port}
-    EOT
 }
 
 resource "kubernetes_persistent_volume_claim" "home" {
