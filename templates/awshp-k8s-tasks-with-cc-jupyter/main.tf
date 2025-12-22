@@ -25,7 +25,7 @@ variable "aws_bearer_token_bedrock" {
   type        = string
   description = "Your AWS Bedrock bearer token. This provides access to Bedrock without needing separate access key and secret key."
   sensitive   = true
-  value       = "xxxx-xxx-xxxx"
+  default     = "xxxx-xxx-xxxx"
 }
 
 variable "anthropic_model" {
