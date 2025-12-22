@@ -136,8 +136,6 @@ module "jupyterlab" {
         }
 
       }
-      # Your additional configuration here
-      root_dir = ${locals.home_folder}
     }
   }
 }
