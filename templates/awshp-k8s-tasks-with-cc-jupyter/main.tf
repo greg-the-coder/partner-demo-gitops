@@ -107,6 +107,16 @@ locals {
     port = 3000
     domain = element(split("/", data.coder_workspace.me.access_url), -1)
     access_url = tostring(data.coder_workspace.me.access_url)
+    jupyter_config = "{
+        ServerApp = {
+          # Required for Coder Tasks iFrame embedding - do not remove
+          tornado_settings = {
+            headers = {
+              "Content-Security-Policy" = "frame-ancestors 'self' ${data.coder_workspace.me.access_url}"
+            }
+          }
+        }
+      }"
 }
 
 locals {
@@ -181,17 +191,7 @@ module "jupyterlab" {
   subdomain = false
   order = 0
 
-  config = {
-    ServerApp = {
-      # Required for Coder Tasks iFrame embedding - do not remove
-      tornado_settings = {
-        headers = {
-          "Content-Security-Policy" = "frame-ancestors 'self' ${local.access_url}"
-        }
-
-      }
-    }
-  }
+  config = local.jupyter_config
 }
 
 module "kiro" {
