@@ -5,8 +5,8 @@ terraform {
             version = "2.37.1"
         }
         coder = {
-            source = "coder/coder"
-            version = "2.8.0"
+            source  = "coder/coder"
+            version = ">= 2.13"
         }
         random = {
             source = "hashicorp/random"
