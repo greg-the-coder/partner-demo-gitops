@@ -153,13 +153,16 @@ locals {
     EOT
 }
 
+resource "coder_env" "bedrock_api_key" {
+  agent_id = coder_agent.main.id
+  name     = "AWS_BEARER_TOKEN_BEDROCK"
+  value    = var.aws_bearer_token_bedrock
+}
+
 resource "coder_agent" "dev" {
     arch = "amd64"
     os = "linux"
     dir = local.home_folder
-    env = {
-        AWS_BEARER_TOKEN_BEDROCK  = var.aws_bearer_token_bedrock
-    }
     display_apps {
         vscode          = false
         vscode_insiders = false
