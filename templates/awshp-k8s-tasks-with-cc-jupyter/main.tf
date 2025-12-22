@@ -185,7 +185,7 @@ module "jupyterlab" {
       # Required for Coder Tasks iFrame embedding - do not remove
       tornado_settings = {
         headers = {
-          "Content-Security-Policy" = "frame-ancestors 'self' ${data.coder_workspace.me.start_count.access_url}"
+          "Content-Security-Policy" = "frame-ancestors 'self' ${data.coder_workspace.access_url}"
         }
 
       }
