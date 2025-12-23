@@ -209,6 +209,10 @@ module "claude-code" {
     order               = 999
 }
 
+resource "coder_ai_task" "this" {
+  app_id = module.claude-code.task_app_id
+}
+
 resource "coder_app" "preview" {
     agent_id     = coder_agent.dev.id
     slug         = "preview"
