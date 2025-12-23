@@ -153,6 +153,12 @@ locals {
     EOT
 }
 
+resource "coder_env" "bedrock_use" {
+  agent_id = coder_agent.dev.id
+  name     = "CLAUDE_CODE_USE_BEDROCK"
+  value    = "1"
+}
+
 resource "coder_env" "bedrock_api_key" {
   agent_id = coder_agent.dev.id
   name     = "AWS_BEARER_TOKEN_BEDROCK"
@@ -207,10 +213,6 @@ module "claude-code" {
     system_prompt       = local.system_prompt
 
     order               = 999
-}
-
-resource "coder_ai_task" "this" {
-  app_id = module.claude-code.task_app_id
 }
 
 resource "coder_app" "preview" {
