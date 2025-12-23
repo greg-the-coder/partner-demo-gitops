@@ -183,25 +183,25 @@ module "coder-login" {
     agent_id = coder_agent.dev.id
 }
 
-#module "jupyterlab" {
-#  count    = data.coder_workspace.me.start_count
-#  source   = "registry.coder.com/coder/jupyterlab/coder"
-#  version  = "1.2.1"
-#  agent_id = coder_agent.dev.id
-#  subdomain = false
-#  order = 0
-#
-#  config = local.jupyter_config
-#}
+module "jupyterlab" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder/jupyterlab/coder"
+  version  = "1.2.1"
+  agent_id = coder_agent.dev.id
+  subdomain = false
+  order = 0
 
-module "code-server" {
-    source   = "registry.coder.com/coder/code-server/coder"
-    version  = "1.3.1"
-    agent_id       = coder_agent.dev.id
-    folder         = local.home_folder
-    subdomain = false
-    order = 0
+  config = local.jupyter_config
 }
+
+#module "code-server" {
+#    source   = "registry.coder.com/coder/code-server/coder"
+#    version  = "1.3.1"
+#    agent_id       = coder_agent.dev.id
+#    folder         = local.home_folder
+#    subdomain = false
+#    order = 0
+#}
 
 module "kiro" {
     source   = "registry.coder.com/coder/kiro/coder"
@@ -223,6 +223,11 @@ module "claude-code" {
     report_tasks        = true
 
     order               = 999
+}
+
+resource "coder_ai_task" "claude-code" {
+    app_id = module.claude-code[0].app_id
+    prompt = local.task_prompt
 }
 
 resource "coder_app" "preview" {
