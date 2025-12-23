@@ -226,6 +226,7 @@ module "claude-code" {
 }
 
 resource "coder_ai_task" "claude-code" {
+    count  = data.coder_workspace.me.start_count
     app_id = module.claude-code[0].task_app_id
 }
 
