@@ -226,7 +226,6 @@ module "claude-code" {
 }
 
 resource "coder_ai_task" "claude-code" {
-    agent_id = coder_agent.dev.id
     prompt = local.task_prompt
 }
 
