@@ -226,7 +226,7 @@ module "claude-code" {
 }
 
 resource "coder_ai_task" "claude-code" {
-    app_id  = module.claude-code[0].task_app_id
+    app_id  = module.claude-code.task_app_id
 }
 
 resource "coder_app" "preview" {
