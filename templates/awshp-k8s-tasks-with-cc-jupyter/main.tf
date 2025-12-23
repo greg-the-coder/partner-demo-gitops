@@ -226,7 +226,6 @@ module "claude-code" {
 }
 
 resource "coder_ai_task" "claude-code" {
-    prompt = local.task_prompt
 }
 
 resource "coder_app" "preview" {
