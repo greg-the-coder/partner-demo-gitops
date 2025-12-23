@@ -220,6 +220,7 @@ module "claude-code" {
     subdomain           = false
     ai_prompt           = local.task_prompt
     system_prompt       = local.system_prompt
+    report_tasks        = true
 
     order               = 999
 }
