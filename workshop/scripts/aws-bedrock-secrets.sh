@@ -55,6 +55,7 @@ echo "Credentials saved to bedrock_credentials.env"
 echo "To use later: source bedrock_credentials.env"
 
 echo "*** Creating Kubernetes Secrets ***"
+aws eks update-kubeconfig --region us-east-1 --name coder-aws-cluster
 kubectl delete secret aws-bedrock-config -n coder
 kubectl create secret generic aws-bedrock-config -n coder \
 --from-literal=region="$AWS_DEFAULT_REGION" \
