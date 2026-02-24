@@ -29,7 +29,7 @@ echo "Creating IAM access keys..."
 ACCESS_KEY_OUTPUT=$(aws iam create-access-key --user-name $USER_NAME)
 
 BEDROCK_ACCESS_KEY_ID=$(echo $ACCESS_KEY_OUTPUT | jq -r '.AccessKey.AccessKeyId')
-BEDROC_SECRET_ACCESS_KEY=$(echo $ACCESS_KEY_OUTPUT | jq -r '.AccessKey.SecretAccessKey')
+BEDROCK_SECRET_ACCESS_KEY=$(echo $ACCESS_KEY_OUTPUT | jq -r '.AccessKey.SecretAccessKey')
 
 # Step 5: Export environment variables
 export AWS_BEARER_TOKEN_BEDROCK="$BEDROCK_API_KEY"
