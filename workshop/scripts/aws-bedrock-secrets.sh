@@ -2,7 +2,7 @@
 
 # Set variables
 USER_NAME="BedrockAPIKey_$(date +%s)"
-EXPIRATION_DAYS=90
+CREDENTIAL_AGE_DAYS=90
 
 echo "Creating IAM user: $USER_NAME"
 
@@ -14,13 +14,14 @@ aws iam attach-user-policy \
     --user-name $USER_NAME \
     --policy-arn arn:aws:iam::aws:policy/AmazonBedrockLimitedAccess
 
-# Step 3: Create Bedrock API key
+# Step 3: Create Bedrock API key (CORRECTED)
 echo "Creating Bedrock API key..."
 BEDROCK_KEY_OUTPUT=$(aws iam create-service-specific-credential \
     --user-name $USER_NAME \
     --service-name bedrock.amazonaws.com \
-    --expiration-days $EXPIRATION_DAYS)
+    --credential-age-days $CREDENTIAL_AGE_DAYS)
 
+# Extract the API key from the output
 BEDROCK_API_KEY=$(echo $BEDROCK_KEY_OUTPUT | jq -r '.ServiceSpecificCredential.ServicePassword')
 
 # Step 4: Create IAM access keys
@@ -53,6 +54,7 @@ EOF
 echo "Credentials saved to bedrock_credentials.env"
 echo "To use later: source bedrock_credentials.env"
 
+echo "*** Creating Kubernetes Secrets ***"
 kubectl delete secret aws-bedrock-config -n coder
 kubectl create secret generic aws-bedrock-config -n coder \  
 --from-literal=region="$AWS_DEFAULT_REGION" \  
