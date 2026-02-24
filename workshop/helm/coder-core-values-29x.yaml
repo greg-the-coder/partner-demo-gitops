@@ -1,0 +1,213 @@
+# The Coder Helm values and defaults can be found here
+# https://github.com/coder/coder/blob/main/helm/coder/values.yaml
+
+coder:
+  # coder.image -- The image to use for Coder.
+  # image:
+  #   repo: ghcr.io/coder/coder:v2.24.2
+  #   tag: v1
+  #   pullPolicy: IfNotPresent
+  #   pullSecrets: []
+
+  # coder.env -- The environment variables to set for Coder. These can be used
+  # to configure all aspects of `coder server`. Please see `coder server --help`
+  # for information about what environment variables can be set.
+  env:
+  - name: CODER_ACCESS_URL
+    value: "https://partner.demo.coder.com/"
+  - name: CODER_WILDCARD_ACCESS_URL
+    value: "*.partner.demo.coder.com"
+#  - name: CODER_HTTP_ADDRESS
+#    value: "127.0.0.1:80"
+#  - name: CODER_TLS_ADDRESS
+#    value: "0.0.0.0:443"
+  - name: CODER_PG_CONNECTION_URL
+    valueFrom:
+      secretKeyRef:
+        key: url
+        name: coder-db-url
+  - name: CODER_DISABLE_PASSWORD_AUTH
+    value: "false"      
+  - name: CODER_SWAGGER_ENABLE
+    value: "true"
+  - name: CODER_REDIRECT_TO_ACCESS_URL
+    value: "false"
+  - name: CODER_TLS_ENABLE
+    value: "false"
+  
+#  # OIDC/SSO configuration
+#  - name: CODER_OIDC_ISSUER_URL
+#    value: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_lsXthgPxX
+#  - name: CODER_OIDC_EMAIL_DOMAIN
+#    value: coder.com,gmail.com
+#  - name: CODER_OIDC_CLIENT_ID
+#    valueFrom:
+#      secretKeyRef:
+#        key: client-id
+#        name: aws-cognito-id
+#  - name: CODER_OIDC_CLIENT_SECRET
+#    valueFrom:
+#      secretKeyRef:
+#        key: client-secret
+#        name: aws-cognito-secret
+#  - name: CODER_OIDC_SCOPES
+#    value: openid,profile,email
+#  - name: CODER_OIDC_SIGN_IN_TEXT
+#    value: AWS Cognito
+#  - name: CODER_OIDC_ICON_URL
+#    value: /icon/aws.png
+
+  # Experimental Coder Features
+  - name: CODER_EXPERIMENTS
+    value: "oauth2,mcp-server-http"
+  - name: CODER_ADDITIONAL_CSP_POLICY
+    value: "frame-src https://*.partner.demo.coder.com"
+
+  # External Authentication - Github
+  #- name: CODER_EXTERNAL_AUTH_0_ID
+  #  value: primary-github
+  #- name: CODER_EXTERNAL_AUTH_0_TYPE
+  #  value: github
+  #- name: CODER_EXTERNAL_AUTH_0_CLIENT_ID
+  #  value: 
+  #- name: CODER_EXTERNAL_AUTH_0_CLIENT_SECRET
+  #  value: 
+  
+  # External Authentication - Jfrog
+  #- name: CODER_EXTERNAL_AUTH_1_ID
+  #  value: jfrog
+  #- name: CODER_EXTERNAL_AUTH_1_TYPE
+  #  value: jfrog
+  #- name: CODER_EXTERNAL_AUTH_1_DISPLAY_NAME
+  #  value: JFrog Artifactory
+  #- name: CODER_EXTERNAL_AUTH_1_DISPLAY_ICON
+  #  value: /icon/jfrog.svg
+  #- name: CODER_EXTERNAL_AUTH_1_CLIENT_ID
+  #  value: 
+  #- name: CODER_EXTERNAL_AUTH_1_CLIENT_SECRET
+  #  value: 
+  #- name: CODER_EXTERNAL_AUTH_1_AUTH_URL
+  #  value: https://coderintegration.jfrog.io/ui/authorization
+  #- name: CODER_EXTERNAL_AUTH_1_TOKEN_URL
+  #  value: 
+  #- name: CODER_EXTERNAL_AUTH_1_SCOPES
+  #  value: applied-permissions/user
+  
+  # Internal Provisioner
+  - name: CODER_PROVISIONER_DAEMONS
+    value: "3"
+  - name: CODER_LOG_FILTER
+    value: "false"
+  - name: CODER_DERP_SERVER_ENABLE
+    value: "true"
+
+# Enable AI Bridge and Coder Tracing
+  - name: CODER_AIBRIDGE_ENABLED
+    value: "true"
+  - name: CODER_TRACE_ENABLE
+    value: "true"
+  - name: CODER_AIBRIDGE_INJECT_CODER_MCP_TOOLS
+    value: "true"
+
+# AWS Bedrock Configuration
+  - name: CODER_AIBRIDGE_BEDROCK_REGION
+    valueFrom:
+      secretKeyRef:
+        key: region
+        name: aws-bedrock-config
+  - name: CODER_AIBRIDGE_BEDROCK_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        key: access-key       
+        name: aws-bedrock-config
+  - name: CODER_AIBRIDGE_BEDROCK_ACCESS_KEY_SECRET
+    valueFrom:
+      secretKeyRef:
+        key: access-key-secret       
+        name: aws-bedrock-config
+  - name: CODER_AIBRIDGE_BEDROCK_MODEL
+    value: global.anthropic.claude-opus-4-5-20251101-v1:0
+  - name: CODER_AIBRIDGE_BEDROCK_SMALL_FAST_MODEL
+    value: global.anthropic.claude-sonnet-4-5-20250929-v1:0
+
+  # Telemetery and prometheus metric config
+  #- name: CODER_TELEMETRY_ENABLE
+  #  value: "true"
+  #- name: CODER_PROMETHEUS_ADDRESS
+  #  value: 0.0.0.0:2112
+  #- name: CODER_PROMETHEUS_ENABLE
+  #  value: "true"
+  #- name: CODER_PROMETHEUS_COLLECT_AGENT_STATS
+  #  value: "true"
+
+  # Enable metric scraping
+  #podAnnotations:
+  #  prometheus.io/port: "2112"
+  #  prometheus.io/scrape: "true"
+  
+  # Enable HA for Coderd
+  replicaCount: 2
+
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4096Mi
+    requests:
+      cpu: 2000m
+      memory: 4096Mi
+ 
+  # Additional pod labels
+  #podLabels:
+  #  app: coder
+
+  # Pod Topology Spread Constraints
+  #topologySpreadConstraints:
+  #- maxSkew: 1
+  #  topologyKey: kubernetes.io/hostname
+  #  whenUnsatisfiable: ScheduleAnyway
+  #  labelSelector:
+  #    matchLabels:
+  #      app: coder
+ 
+  # Service object to expose for Coder
+  service:
+    enable: true
+    type: LoadBalancer
+    sessionAffinity: None
+    externalTrafficPolicy: Local
+    annotations:   
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+      service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "Environment=demo,Name=coder-cntrlpln-nlb"
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip   
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+  
+  # Service account configuration - cannot be diabled
+  serviceAccount:
+    # Whether or not to grant the coder service account permissions to manage workspaces. 
+    # This includes permission to manage pods and persistent volume claims in the deployment namespace.
+    # It is recommended to keep this on if you are using Kubernetes templates within Coder.
+    workspacePerms: true
+  
+    # Provides the service account permission to manage Kubernetes deployments. 
+    # Depends on workspacePerms.
+    enableDeployments: true
+    
+  # TLS secret name
+  #tls:
+  #  secretNames:
+  #  - gcp-tls
+
+# External Provisioner Daemon 
+#provisionerDaemon:
+#  pskSecretName: "coder-provisioner-psk"
+
+
+# Additional Configurations
+    #- name: CODER_BLOCK_DIRECT
+    #  value: "false"
+    #- name: CODER_DERP_FORCE_WEBSOCKETS
+    #  value: "false"
+    #- name: CODER_DANGEROUS_ALLOW_PATH_APP_SHARING
+    #  value: "true"
+    #- name: CODER_DANGEROUS_ALLOW_PATH_APP_SITE_OWNER_ACCESS
+    #  value: "true"
