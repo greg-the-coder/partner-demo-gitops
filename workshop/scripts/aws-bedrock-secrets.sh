@@ -56,7 +56,7 @@ echo "To use later: source bedrock_credentials.env"
 
 echo "*** Creating Kubernetes Secrets ***"
 kubectl delete secret aws-bedrock-config -n coder
-kubectl create secret generic aws-bedrock-config -n coder \  
---from-literal=region="$AWS_DEFAULT_REGION" \  
+kubectl create secret generic aws-bedrock-config -n coder \
+--from-literal=region="$AWS_DEFAULT_REGION" \
 --from-literal=access-key="$AWS_ACCESS_KEY_ID" \
 --from-literal=access-key-secret="$AWS_SECRET_ACCESS_KEY"
