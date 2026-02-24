@@ -28,26 +28,26 @@ BEDROCK_API_KEY=$(echo $BEDROCK_KEY_OUTPUT | jq -r '.ServiceSpecificCredential.S
 echo "Creating IAM access keys..."
 ACCESS_KEY_OUTPUT=$(aws iam create-access-key --user-name $USER_NAME)
 
-ACCESS_KEY_ID=$(echo $ACCESS_KEY_OUTPUT | jq -r '.AccessKey.AccessKeyId')
-SECRET_ACCESS_KEY=$(echo $ACCESS_KEY_OUTPUT | jq -r '.AccessKey.SecretAccessKey')
+BEDROCK_ACCESS_KEY_ID=$(echo $ACCESS_KEY_OUTPUT | jq -r '.AccessKey.AccessKeyId')
+BEDROC_SECRET_ACCESS_KEY=$(echo $ACCESS_KEY_OUTPUT | jq -r '.AccessKey.SecretAccessKey')
 
 # Step 5: Export environment variables
 export AWS_BEARER_TOKEN_BEDROCK="$BEDROCK_API_KEY"
-export AWS_ACCESS_KEY_ID="$ACCESS_KEY_ID"
-export AWS_SECRET_ACCESS_KEY="$SECRET_ACCESS_KEY"
+export AWS_BEDROCK_ACCESS_KEY_ID="$BEDROCK_ACCESS_KEY_ID"
+export AWS_BEDROCK_SECRET_ACCESS_KEY="$BEDROCK_SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION="us-east-1"
 
 echo "Environment variables set:"
 echo "AWS_BEARER_TOKEN_BEDROCK: $AWS_BEARER_TOKEN_BEDROCK"
-echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
-echo "AWS_SECRET_ACCESS_KEY: [HIDDEN]"
+echo "AWS_BEDROCK_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+echo "AWS_BEDROCK_SECRET_ACCESS_KEY: [HIDDEN]"
 echo "AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION"
 
 # Save to file for later use
 cat > bedrock_credentials.env << EOF
 export AWS_BEARER_TOKEN_BEDROCK="$BEDROCK_API_KEY"
-export AWS_ACCESS_KEY_ID="$ACCESS_KEY_ID"
-export AWS_SECRET_ACCESS_KEY="$SECRET_ACCESS_KEY"
+export AWS_BEDROCK_ACCESS_KEY_ID="$BEDROCK_ACCESS_KEY_ID"
+export AWS_BEDROCK_SECRET_ACCESS_KEY="$BEDROCK_SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION="us-east-1"
 EOF
 
@@ -59,5 +59,5 @@ aws eks update-kubeconfig --region us-east-1 --name coder-aws-cluster
 kubectl delete secret aws-bedrock-config -n coder
 kubectl create secret generic aws-bedrock-config -n coder \
 --from-literal=region="$AWS_DEFAULT_REGION" \
---from-literal=access-key="$AWS_ACCESS_KEY_ID" \
---from-literal=access-key-secret="$AWS_SECRET_ACCESS_KEY"
+--from-literal=access-key="$AWS_BEDROCK_ACCESS_KEY_ID" \
+--from-literal=access-key-secret="$AWS_BEDROCK_SECRET_ACCESS_KEY"
