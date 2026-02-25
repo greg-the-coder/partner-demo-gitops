@@ -6,7 +6,7 @@ terraform {
         }
         coder = {
             source = "coder/coder"
-            version = "2.8.0"
+           version = ">= 2.13"
         }
         random = {
             source = "hashicorp/random"
@@ -19,18 +19,6 @@ variable "namespace" {
   type        = string
   description = "The Kubernetes namespace to create workspaces in (must exist prior to creating workspaces). If the Coder host is itself running as a Pod on the same Kubernetes cluster as you are deploying workspaces to, set this to the same namespace."
   default     = "coder"
-}
-
-variable "anthropic_model" {
-  type        = string
-  description = "The AWS Inference profile ID of the base Anthropic model to use with Claude Code"
-  default     = "global.anthropic.claude-sonnet-4-5-20250929-v1:0"
-}
-
-variable "anthropic_small_fast_model" {
-  type        = string
-  description = "The AWS Inference profile ID of the small fast Anthropic model to use with Claude Code"
-  default     = "global.anthropic.claude-haiku-4-5-20251001-v1:0"
 }
 
 locals {
@@ -85,30 +73,14 @@ data "coder_parameter" "disk_size" {
   order     = 3
 }
 
-data "coder_parameter" "ai_prompt" {
-    type        = "string"
-    name        = "AI Prompt"
-    icon        = "/emojis/1f4ac.png"
-    description = "Write a task prompt for Claude. This will be the first action it will attempt to finish."
-    default = "Do nothing but report a 'task completed' update to Coder"
-    mutable     = false
-}
-
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
+data "coder_task" "me" {}
 
 resource "coder_agent" "dev" {
     arch = "amd64"
     os = "linux"
     dir = local.home_folder
-    env = {
-        CODER_MCP_CLAUDE_TASK_PROMPT        = local.task_prompt
-        CODER_MCP_CLAUDE_SYSTEM_PROMPT      = local.system_prompt
-        CLAUDE_CODE_USE_BEDROCK = "1",
-        ANTHROPIC_MODEL = var.anthropic_model,
-        ANTHROPIC_SMALL_FAST_MODEL = var.anthropic_small_fast_model,
-        CODER_MCP_APP_STATUS_SLUG = "claude-code"
-    }
     display_apps {
         vscode          = false
         vscode_insiders = false
@@ -142,23 +114,22 @@ module "kiro" {
 module "claude-code" {
     count               = data.coder_workspace.me.start_count
     source              = "registry.coder.com/coder/claude-code/coder"
-    version             = "2.2.0"
+    version             = "4.7.5"
     agent_id            = coder_agent.dev.id
-    folder              = local.home_folder
+    workdir             = local.home_folder
     subdomain           = false
+    ai_prompt           = local.task_prompt
+    system_prompt       = local.system_prompt
+    report_tasks        = true
+    enable_aibridge     = true
 
-    install_claude_code = true
     order               = 999
+  }
 
-    experiment_report_tasks = true
-    experiment_pre_install_script = <<-EOF
-        # If user doesn't have a Github account or aren't 
-        # part of the coder-contrib organization, then they can use the `coder-contrib-bot` account.
-        if [ ! -z "$GH_USERNAME" ]; then
-            unset -v GIT_ASKPASS
-            unset -v GIT_SSH_COMMAND
-        fi
-    EOF
+
+resource "coder_ai_task" "claude-code" {
+    count  = data.coder_workspace.me.start_count
+    app_id = module.claude-code[0].task_app_id
 }
 
 resource "coder_app" "preview" {
@@ -192,7 +163,7 @@ locals {
     task_prompt = join(" ", [
         "First, post a 'task started' update to Coder.",
         "Then, review all of your memory.",
-        "Finally, ${data.coder_parameter.ai_prompt.value}.",
+        "Finally, ${data.coder_task.me.prompt}.",
     ])
     system_prompt = <<-EOT
         Hey! First, report an initial task to Coder to show you have started! The user has provided you with a prompt of something to create. Create it the best you can, and keep it as succinct as possible.
