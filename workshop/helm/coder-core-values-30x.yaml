@@ -126,9 +126,9 @@ coder:
         key: access-key-secret       
         name: aws-bedrock-config
   - name: CODER_AIBRIDGE_BEDROCK_MODEL
-    value: global.anthropic.claude-opus-4-5-20251101-v1:0
+    value: us.anthropic.claude-opus-4-6-v1
   - name: CODER_AIBRIDGE_BEDROCK_SMALL_FAST_MODEL
-    value: global.anthropic.claude-sonnet-4-5-20250929-v1:0
+    value: us.anthropic.claude-sonnet-4-6
 
   # Telemetery and prometheus metric config
   #- name: CODER_TELEMETRY_ENABLE
