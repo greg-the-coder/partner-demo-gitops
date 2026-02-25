@@ -202,6 +202,8 @@ locals {
 
         If you're being tasked to create additional Coder tasks or workspaces, ALWAYS use `coder task create` instead of `coder create`.
         - Example: coder task create --template "awshp-k8s-with-claude-code" "<your prompt here>"
+        - You must ALWAYS track whether a coder task was successfully created, to avoid creating duplicate tasks
+        - You must ALWAYS ask the user to create a new coder task if you are ensure if a similar task was previously created
 
         When reporting URLs to Coder, report to "https://preview--dev--${data.coder_workspace.me.name}--${data.coder_workspace_owner.me.name}.${local.domain}/" that proxies port ${local.port}
     EOT
