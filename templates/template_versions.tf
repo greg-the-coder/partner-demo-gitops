@@ -36,22 +36,22 @@ provider "coderd" {
 # Maintain Coder Template Resources in this Section
 ###########################################################
 
-#resource "coderd_template" "awshp-k8s-with-claude-code" {
-#  name        = "awshp-k8s-base-claudecode"
-#  display_name = "AWS Workshop - Kubernetes with Claude Code"
-#  description = "Provision Kubernetes Deployments as Coder workspaces with Anthropic Claude Code."
-#  icon = "/icon/k8s.png"
-#  versions = [{
-#    directory = "./awshp-k8s-with-claude-code"
-#    active    = true
-#    # Version name is optional
-#    name = var.coder_gitsha
-#    tf_vars = [{
-#      name  = "namespace"
-#      value = "coder"
-#    }]
-#  }]
-#}
+resource "coderd_template" "awshp-k8s-with-claude-code" {
+  name        = "awshp-k8s-base-claudecode"
+  display_name = "AWS Workshop - Kubernetes with Claude Code"
+  description = "Provision Kubernetes Deployments as Coder workspaces with Anthropic Claude Code."
+  icon = "/icon/k8s.png"
+  versions = [{
+    directory = "./awshp-k8s-with-claude-code"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+    tf_vars = [{
+      name  = "namespace"
+      value = "coder"
+    }]
+  }]
+}
 
 resource "coderd_template" "awshp-k8s-tasks-with-cc-jupyter" {
   name        = "awshp-k8s-tasks-with-cc-jupyter"
