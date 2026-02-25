@@ -121,6 +121,8 @@ module "claude-code" {
     ai_prompt           = local.task_prompt
     system_prompt       = local.system_prompt
     report_tasks        = true
+    
+    #Review ..partner-demo-gitops/workshop/helm/coder-core-values-30x.yaml for AI Bridge Configuration
     enable_aibridge     = true
 
     order               = 999
