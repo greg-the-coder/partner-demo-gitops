@@ -53,6 +53,23 @@ resource "coderd_template" "awshp-k8s-with-claude-code" {
   }]
 }
 
+resource "coderd_template" "awshp-k8s-base-kirocli" {
+  name        = "awshp-k8s-base-kirocli"
+  display_name = "AWS Workshop - Kubernetes with Kiro CLI"
+  description = "Provision Kubernetes Deployments as Coder workspaces with Kiro CLI Agent."
+  icon = "/icon/k8s.png"
+  versions = [{
+    directory = "./awshp-k8s-base-kirocli"
+    active    = true
+    # Version name is optional
+    name = var.coder_gitsha
+    tf_vars = [{
+      name  = "namespace"
+      value = "coder"
+    }]
+  }]
+}
+
 resource "coderd_template" "awshp-k8s-tasks-with-cc-jupyter" {
   name        = "awshp-k8s-tasks-with-cc-jupyter"
   display_name = "AWS Workshop - Kubernetes with Claude Code + Jupyter lab"
