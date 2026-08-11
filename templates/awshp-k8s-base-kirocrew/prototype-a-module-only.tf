@@ -90,6 +90,29 @@ resource "coder_agent" "dev" {
     ssh_helper      = false
   }
 
+  # Live resource metadata — KiroCrew can be CPU/RAM/disk intensive.
+  metadata {
+    display_name = "CPU Usage"
+    key          = "cpu"
+    script       = "coder stat cpu"
+    interval     = 10
+    timeout      = 1
+  }
+  metadata {
+    display_name = "RAM Usage"
+    key          = "mem"
+    script       = "coder stat mem"
+    interval     = 10
+    timeout      = 1
+  }
+  metadata {
+    display_name = "Disk Usage (home)"
+    key          = "disk"
+    script       = "coder stat disk --path ${local.home_dir}"
+    interval     = 60
+    timeout      = 1
+  }
+
   startup_script_behavior = "blocking"
   startup_script          = file("${path.module}/startup.sh")
 }
@@ -126,7 +149,6 @@ module "kirocrew" {
   port           = 8899
   use_cached     = true
   order          = 3
-  subdomain      = false
 }
 
 # ── Auth app for manual Kiro CLI auth ────────────────────────────────────────

@@ -27,6 +27,8 @@ USE_CACHED="${USE_CACHED}"
 EXTRA_MCP_B64='${EXTRA_MCP_B64}'
 AWS_TOKEN_B64='${AWS_TOKEN_B64}'
 ALLOWED_ORIGINS='${ALLOWED_ORIGINS}'
+DASHBOARD_URL='${DASHBOARD_URL}'
+REDIRECT_PORT='${REDIRECT_PORT}'
 
 export PATH="$INSTALL_PREFIX:$HOME/.local/bin:$HOME/bin:$PATH"
 
@@ -176,6 +178,9 @@ cat > "$LAUNCHER_PATH" <<'LAUNCHER'
 # Trust the Coder proxy host(s) in the gateway's Host/Origin allowlist so the
 # dashboard is reachable through Coder ("Host header not allowed." otherwise).
 [ -n "$KC_ORIGINS" ] && export KIROCREW_CORS_ORIGINS="$KC_ORIGINS"
+# Bind the dashboard's public origin so token cookies are scoped to the Coder
+# app URL (required for the redirect-with-token flow to authenticate).
+[ -n "$KC_DASHBOARD_URL" ] && "$KC_CMD" config set dashboard.url "$KC_DASHBOARD_URL" >/dev/null 2>&1 || true
 if ! unshare --user --map-root-user true >/dev/null 2>&1; then
   "$KC_CMD" config set agent.sandbox_allow_unsandboxed_exec true >/dev/null 2>&1 || true
 fi
@@ -183,8 +188,68 @@ exec env KIROCREW_PORT="$KC_PORT" "$KC_CMD" gateway
 LAUNCHER
 chmod +x "$LAUNCHER_PATH"
 
-setsid nohup env KC_CMD="$KIROCREW_CMD" KC_PORT="${PORT}" KC_ORIGINS="${ALLOWED_ORIGINS}" \
+setsid nohup env KC_CMD="$KIROCREW_CMD" KC_PORT="${PORT}" KC_ORIGINS="${ALLOWED_ORIGINS}" KC_DASHBOARD_URL="${DASHBOARD_URL}" \
   bash "$LAUNCHER_PATH" >> "${LOG_PATH}" 2>&1 < /dev/null &
 disown 2>/dev/null || true
 
 echo "✓ KiroCrew gateway launch dispatched; readiness is surfaced by the KiroCrew app healthcheck."
+
+# ── Token-minting redirector (self-authenticating app tile) ───────────────────
+# The visible Coder "kirocrew" app points at this loopback redirector. On each
+# hit it mints a short-lived token from the gateway's loopback secret and
+# 302-redirects to the hidden dashboard app carrying ?token=…, so the tile lands
+# on an already-authenticated dashboard. /healthz returns 200 without minting so
+# the Coder app healthcheck doesn't burn tokens.
+if [ -n "${REDIRECT_PORT}" ] && [ -n "${DASHBOARD_URL}" ]; then
+  REDIR_PATH="$HOME/.kiro/crew/redirect-gateway.py"
+  mkdir -p "$HOME/.kiro/crew"
+  cat > "$REDIR_PATH" <<'PYEOF'
+import http.server, urllib.request, json, os
+
+REDIR_PORT = int(os.environ["REDIR_PORT"])
+GW_BASE    = "http://127.0.0.1:" + os.environ["GW_PORT"]
+DASH       = os.environ["DASH_ORIGIN"].rstrip("/")
+SECRET     = os.path.expanduser("~/.kiro/crew/.local_secret")
+
+
+class Handler(http.server.BaseHTTPRequestHandler):
+    def _mint(self):
+        secret = open(SECRET).read().strip()
+        req = urllib.request.Request(
+            GW_BASE + "/api/token/local?ttl=24h",
+            headers={"X-Local-Secret": secret},
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return json.load(resp).get("token", "")
+
+    def do_GET(self):
+        if self.path.startswith("/healthz"):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"ok")
+            return
+        try:
+            token = self._mint()
+        except Exception:
+            token = ""
+        if not token:
+            self.send_response(503)
+            self.end_headers()
+            self.wfile.write(b"KiroCrew gateway still starting - retry shortly")
+            return
+        self.send_response(302)
+        self.send_header("Location", DASH + "/?token=" + token)
+        self.end_headers()
+
+    def log_message(self, *args):
+        pass
+
+
+http.server.HTTPServer(("127.0.0.1", REDIR_PORT), Handler).serve_forever()
+PYEOF
+  : > /tmp/kirocrew-redirect.log 2>/dev/null || true
+  setsid nohup env REDIR_PORT="${REDIRECT_PORT}" GW_PORT="${PORT}" DASH_ORIGIN="${DASHBOARD_URL}" \
+    python3 "$REDIR_PATH" >> /tmp/kirocrew-redirect.log 2>&1 < /dev/null &
+  disown 2>/dev/null || true
+  echo "✓ KiroCrew redirector dispatched on port ${REDIRECT_PORT} → ${DASHBOARD_URL}"
+fi

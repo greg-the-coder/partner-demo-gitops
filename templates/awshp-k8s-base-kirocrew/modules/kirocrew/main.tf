@@ -108,13 +108,44 @@ variable "allowed_origins" {
   default     = ""
 }
 
+variable "slug" {
+  type        = string
+  description = "Base slug for the visible KiroCrew app tile."
+  default     = "kirocrew"
+}
+
+variable "redirect_port" {
+  type        = number
+  description = "Loopback port for the token-minting redirector that fronts the dashboard app so the Coder app tile self-authenticates."
+  default     = 8898
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Workspace identity (used to build the dashboard app's subdomain origin)
+# ──────────────────────────────────────────────────────────────────────────────
+
+data "coder_workspace" "me" {}
+data "coder_workspace_owner" "me" {}
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Locals
 # ──────────────────────────────────────────────────────────────────────────────
 
 locals {
-  extra_mcp_b64        = var.extra_mcp_json != "" ? base64encode(var.extra_mcp_json) : ""
-  aws_token_b64        = var.aws_builder_id_token != "" ? base64encode(var.aws_builder_id_token) : ""
+  extra_mcp_b64 = var.extra_mcp_json != "" ? base64encode(var.extra_mcp_json) : ""
+  aws_token_b64 = var.aws_builder_id_token != "" ? base64encode(var.aws_builder_id_token) : ""
+
+  # Coder serves subdomain apps at <slug>--<workspace>--<owner>.<access-host>
+  # (this deployment's format has NO agent-name segment). Build the dashboard
+  # app's external origin so the gateway trusts it (Host allowlist + dashboard.url)
+  # and the redirector can 302 the browser there carrying a freshly-minted token.
+  dashboard_slug   = "${var.slug}-dashboard"
+  access_host      = trimsuffix(replace(replace(data.coder_workspace.me.access_url, "https://", ""), "http://", ""), "/")
+  dashboard_origin = "https://${local.dashboard_slug}--${data.coder_workspace.me.name}--${data.coder_workspace_owner.me.name}.${local.access_host}"
+
+  # Origins the gateway trusts in its Host/Origin allowlist: the dashboard app
+  # origin (what the browser sends after the redirect) plus any caller extras.
+  gateway_allowed_origins = trimspace(var.allowed_origins) != "" ? "${local.dashboard_origin},${var.allowed_origins}" : local.dashboard_origin
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -135,24 +166,53 @@ resource "coder_script" "kirocrew" {
     USE_CACHED       = var.use_cached
     EXTRA_MCP_B64    = local.extra_mcp_b64
     AWS_TOKEN_B64    = local.aws_token_b64
-    ALLOWED_ORIGINS  = var.allowed_origins
+    ALLOWED_ORIGINS  = local.gateway_allowed_origins
+    DASHBOARD_URL    = local.dashboard_origin
+    REDIRECT_PORT    = var.redirect_port
   })
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Coder app: KiroCrew dashboard
+# Coder apps
+#
+# The visible "kirocrew" tile points at a tiny loopback redirector (see run.sh)
+# that mints a short-lived token and 302-redirects to the hidden dashboard app
+# carrying ?token=…, so clicking the tile lands on an already-authenticated
+# dashboard — no manual `kirocrew token`, no separate URL. KiroCrew requires a
+# token for every browser request (loopback is not trusted), and a static
+# coder_app URL can't embed a runtime token, which is why the redirector exists.
 # ──────────────────────────────────────────────────────────────────────────────
 
 resource "coder_app" "kirocrew" {
   agent_id     = var.agent_id
-  slug         = "kirocrew"
+  slug         = var.slug
   display_name = "KiroCrew"
-  url          = "http://localhost:${var.port}/"
+  url          = "http://localhost:${var.redirect_port}/"
   icon         = "/icon/kiro.svg"
-  subdomain    = var.subdomain
+  subdomain    = true
   share        = var.share
   order        = var.order
   group        = var.group
+  open_in      = var.open_in
+
+  healthcheck {
+    url       = "http://localhost:${var.redirect_port}/healthz"
+    interval  = 5
+    threshold = 6
+  }
+}
+
+# Hidden target that actually serves the dashboard SPA (and its websocket) via
+# Coder's subdomain proxy. The redirector 302s the browser here with a token.
+resource "coder_app" "kirocrew_dashboard" {
+  agent_id     = var.agent_id
+  slug         = local.dashboard_slug
+  display_name = "KiroCrew Dashboard"
+  url          = "http://localhost:${var.port}/"
+  icon         = "/icon/kiro.svg"
+  subdomain    = true
+  share        = var.share
+  hidden       = true
   open_in      = var.open_in
 
   healthcheck {

@@ -103,6 +103,32 @@ resource "coder_agent" "dev" {
     ssh_helper      = false
   }
 
+  # Live resource metadata — KiroCrew (gateway + agent subprocesses) can be
+  # CPU/RAM/disk intensive, so surface usage on the workspace page.
+  metadata {
+    display_name = "CPU Usage"
+    key          = "cpu"
+    script       = "coder stat cpu"
+    interval     = 10
+    timeout      = 1
+  }
+
+  metadata {
+    display_name = "RAM Usage"
+    key          = "mem"
+    script       = "coder stat mem"
+    interval     = 10
+    timeout      = 1
+  }
+
+  metadata {
+    display_name = "Disk Usage (home)"
+    key          = "disk"
+    script       = "coder stat disk --path ${local.home_dir}"
+    interval     = 60
+    timeout      = 1
+  }
+
   startup_script_behavior = "blocking"
   startup_script          = file("${path.module}/startup.sh")
 }

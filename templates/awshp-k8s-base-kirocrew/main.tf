@@ -94,6 +94,31 @@ resource "coder_agent" "dev" {
         web_terminal    = true
         ssh_helper      = false
     }
+
+    # Live resource metadata — KiroCrew (gateway + agent subprocesses) can be
+    # CPU/RAM/disk intensive, so surface usage on the workspace page.
+    metadata {
+        display_name = "CPU Usage"
+        key          = "cpu"
+        script       = "coder stat cpu"
+        interval     = 10
+        timeout      = 1
+    }
+    metadata {
+        display_name = "RAM Usage"
+        key          = "mem"
+        script       = "coder stat mem"
+        interval     = 10
+        timeout      = 1
+    }
+    metadata {
+        display_name = "Disk Usage (home)"
+        key          = "disk"
+        script       = "coder stat disk --path ${local.home_dir}"
+        interval     = 60
+        timeout      = 1
+    }
+
     startup_script_behavior = "blocking"
     startup_script = <<-EOT
     set -e
@@ -363,6 +388,18 @@ module "kiro" {
     version  = "1.1.0"
     agent_id = coder_agent.dev.id
     order = 1
+}
+
+# ── KiroCrew gateway + self-authenticating dashboard app ──────────────────────
+# The module installs/launches the KiroCrew gateway (detached, sandbox auto-fix),
+# trusts the Coder proxy host, and exposes a self-authenticating "kirocrew" app
+# tile via a token-minting redirector. See modules/kirocrew.
+module "kirocrew" {
+  source     = "./modules/kirocrew"
+  agent_id   = coder_agent.dev.id
+  port       = 8899
+  use_cached = true
+  order      = 3
 }
 # Prompt the user for the git repo URL
 data "coder_parameter" "git_repo" {
