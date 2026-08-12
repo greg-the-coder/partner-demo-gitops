@@ -165,6 +165,17 @@ fi
 echo "Dispatching KiroCrew gateway launcher (detached) on port ${PORT}"
 echo "Logs at: ${LOG_PATH}"
 echo "Using kirocrew binary: $KIROCREW_CMD"
+
+# Headless Kiro auth: if KIRO_API_KEY is present (e.g. injected by a Coder user
+# secret with an --env KIRO_API_KEY target), the gateway inherits it and the
+# kiro-cli runtime it spawns authenticates non-interactively — no browser login,
+# no Builder ID / SSO prompt. See modules/kirocrew/README.md.
+if [ -n "$${KIRO_API_KEY:-}" ]; then
+  echo "✓ Headless Kiro auth: KIRO_API_KEY detected — kiro-cli will authenticate non-interactively."
+else
+  echo "ℹ Headless Kiro auth: KIRO_API_KEY not set — kiro-cli falls back to interactive/Builder ID/SSO. Set a Coder user secret ('coder secret create kiro-api-key --env KIRO_API_KEY') to enable headless auth."
+fi
+
 : > "${LOG_PATH}" 2>/dev/null || true
 
 LAUNCHER_PATH="$HOME/.kiro/crew/start-gateway.sh"
