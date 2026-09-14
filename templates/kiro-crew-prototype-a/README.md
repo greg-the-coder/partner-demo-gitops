@@ -151,9 +151,9 @@ sign in will authenticate automatically.
 | Parameter          | Description                                   | Default | Range          |
 |--------------------|-----------------------------------------------|---------|----------------|
 | `CPU cores`        | CPU limit for the workspace pod               | `2`     | 2–8            |
-| `Memory (__ GB)`   | Memory limit (GiB) for the workspace pod      | `4`     | 4–16           |
+| `Memory (__ GB)`   | Memory limit (GiB) for the workspace pod      | `8`     | 4–16           |
 | `PVC storage size` | Persistent `/home/coder` storage (GiB)        | `30`    | 10–50 (slider) |
-| `git_repo`         | Repository cloned into the workspace on start | `aws-rag-prototyping` | any Git URL |
+| `git_repo`         | Repository cloned into the workspace on start | `aws-coder-agentic-ai-showcase` | any Git URL |
 
 Template variable `namespace` (default `coder`) selects the Kubernetes namespace.
 

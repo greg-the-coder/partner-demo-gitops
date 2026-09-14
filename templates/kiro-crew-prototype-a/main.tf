@@ -55,7 +55,7 @@ data "coder_parameter" "memory" {
   }
   form_type   = "input"
   mutable     = true
-  default     = 4
+  default     = 8
   order       = 2
 }
 
@@ -79,7 +79,7 @@ data "coder_parameter" "git_repo" {
   name         = "git_repo"
   display_name = "Git repository"
   description  = "Repository to clone into the workspace on first start."
-  default      = "https://github.com/greg-the-coder/aws-rag-prototyping.git"
+  default      = "https://github.com/greg-the-coder/aws-coder-agentic-ai-showcase"
   order        = 4
 }
 
