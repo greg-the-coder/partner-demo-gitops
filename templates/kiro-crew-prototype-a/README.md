@@ -81,7 +81,7 @@ behind Coder's authentication with no extra ingress to manage.
 - **Wildcard DNS / subdomain apps enabled.** The dashboard is a **subdomain**
   `coder_app` (`slug--workspace--owner.<access-host>`). Your Coder deployment
   must serve wildcard app subdomains, or the dashboard tile will not resolve.
-- **Container image**: [`codercom/enterprise-base:ubuntu`](https://github.com/coder/enterprise-images/tree/main/images/base).
+- **Container image**: [`codercom/enterprise-base`](https://github.com/coder/enterprise-images/tree/main/images/base), pinned to the Ubuntu 24.04 LTS ("noble", Python 3.12) digest. Newer `:ubuntu` tags (25.10 "resolute", Python 3.14) break the KiroCrew installer's `pipx` step.
 
 ### Kiro account / model access
 
