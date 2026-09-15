@@ -55,7 +55,7 @@ data "coder_parameter" "memory" {
   }
   form_type   = "input"
   mutable     = true
-  default     = 4
+  default     = 8
   order       = 2
 }
 
@@ -79,7 +79,7 @@ data "coder_parameter" "git_repo" {
   name         = "git_repo"
   display_name = "Git repository"
   description  = "Repository to clone into the workspace on first start."
-  default      = "https://github.com/greg-the-coder/aws-rag-prototyping.git"
+  default      = "https://github.com/greg-the-coder/aws-coder-agentic-ai-showcase"
   order        = 4
 }
 
@@ -290,7 +290,12 @@ resource "kubernetes_deployment" "dev" {
 
         container {
           name              = "dev"
-          image             = "codercom/enterprise-base:ubuntu"
+          # Pinned to Ubuntu 24.04 LTS ("noble", Python 3.12) by digest. The
+          # rolling ":ubuntu" tag moved to 25.10 ("resolute", Python 3.14),
+          # whose distro pipx crashes the KiroCrew installer (empty
+          # `pip list --format=json` -> JSONDecodeError) and fails agent startup.
+          # Digest = codercom/enterprise-base:ubuntu-noble-20260803.
+          image             = "codercom/enterprise-base@sha256:16031b4de2e099884ad6b4057bffeaf03380a76eddf46c193b5d0767e738ba96"
           image_pull_policy = "Always"
           command           = ["sh", "-c", coder_agent.dev.init_script]
           security_context  { run_as_user = "1000" }

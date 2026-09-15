@@ -57,6 +57,25 @@ elif [ "$USE_CACHED" = "true" ] && [ -x "$KIROCREW_VENV_BIN" ]; then
 else
   echo -e "$${BOLD}Installing KiroCrew...$${RESET}"
   unset PYTHONPATH PYTHONHOME
+
+  # The installer shells out to the ambient `pipx`. On base images whose system
+  # python is 3.13+ (e.g. Ubuntu "resolute"/25.10 ships 3.14) the distro pipx
+  # crashes parsing an empty `pip list --format=json` (JSONDecodeError). The
+  # template pins an Ubuntu 24.04/Python 3.12 image (see main.tf); as a guard we
+  # also build a pipx on a supported interpreter (python3.12, then 3.11) first.
+  if command -v python3.12 &>/dev/null; then PIPX_PY=python3.12
+  elif command -v python3.11 &>/dev/null; then PIPX_PY=python3.11
+  else PIPX_PY=python3; fi
+  if [ ! -x "$HOME/.kiro/pipx-venv/bin/pipx" ]; then
+    "$PIPX_PY" -m venv "$HOME/.kiro/pipx-venv" \
+      && "$HOME/.kiro/pipx-venv/bin/pip" install -q --upgrade pip pipx \
+      || echo "WARN: dedicated pipx venv build failed; using system pipx"
+  fi
+  if [ -x "$HOME/.kiro/pipx-venv/bin/pipx" ]; then
+    ln -sf "$HOME/.kiro/pipx-venv/bin/pipx" "$HOME/.local/bin/pipx"
+  fi
+  hash -r
+
   curl -fsSL https://download.crew.kiro.dev/cli.sh | sh
   echo "✓ KiroCrew installed"
 fi
